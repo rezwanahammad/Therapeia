@@ -1,0 +1,150 @@
+.category-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: fit-content;
+  position: sticky;
+  top: 120px;
+}
+
+.sidebar-header {
+  background: #f8f9fa;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-btn:hover {
+  color: #00b894;
+}
+
+.category-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.category-item:hover {
+  background: #f8f9fa;
+  padding-left: 1.25rem;
+}
+
+.category-item.active {
+  background: #e8f5e8;
+  border-left: 3px solid #00b894;
+  color: #00b894;
+  font-weight: 600;
+}
+
+.category-icon {
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+  width: 24px;
+  text-align: center;
+}
+
+.category-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.category-arrow {
+  color: #ccc;
+  font-size: 1rem;
+  transition: transform 0.3s;
+}
+
+.category-item:hover .category-arrow {
+  transform: translateX(3px);
+  color: #00b894;
+}
+
+.flash-sale-banner {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.flash-sale-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.flash-icon {
+  font-size: 1.2rem;
+  animation: flash 1.5s infinite;
+}
+
+@keyframes flash {
+  0%, 50% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}
+
+.flash-text {
+  font-weight: bold;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.flash-sale-discount {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.flash-sale-time {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .category-sidebar {
+    position: static;
+    margin-bottom: 1rem;
+  }
+  
+  .sidebar-header {
+    cursor: pointer;
+  }
+  
+  .category-list {
+    max-height: 200px;
+  }
+}

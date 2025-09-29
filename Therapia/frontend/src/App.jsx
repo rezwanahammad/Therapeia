@@ -1,34 +1,41 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import Header from './components/Header'
+import CategorySidebar from './components/CategorySidebar'
+import ProductGrid from './components/ProductGrid'
+import { products } from './data/mockData'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState('all')
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app">
+      <Header />
+      
+      <main className="main-content">
+        <div className="container">
+          <div className="content-layout">
+            <aside className="sidebar">
+              <CategorySidebar 
+                onCategorySelect={handleCategorySelect}
+                selectedCategory={selectedCategory}
+              />
+            </aside>
+            
+            <section className="products-section">
+              <ProductGrid 
+                products={products}
+                selectedCategory={selectedCategory}
+              />
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
   )
 }
 
