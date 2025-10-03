@@ -120,8 +120,13 @@
 
 .terms { color: #666; font-size: 12px; margin-top: 14px; }
 .terms a { color: #0c7b67; text-decoration: none; }
-.signup-callout { margin-top: 6px; font-size: 13px; }
-.signup-callout a { color: #0c7b67; text-decoration: none; }
+.auth-switch { margin-top: 8px; font-size: 13px; }
+.link-btn { background: none; border: none; color: #0c7b67; cursor: pointer; padding: 0; }
+
+/* Signup specific */
+.form-group { margin-top: 12px; }
+.text-input { padding: 12px 14px; border: 1px solid #ced4da; border-radius: 8px; width: 100%; }
+.terms-row { display: flex; align-items: center; gap: 8px; color: #555; margin: 8px 0 4px; }
 
 @media (max-width: 768px) {
   .auth-content { grid-template-columns: 1fr; }
