@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Header.css';
 import AuthModal from './AuthModal';
 
-const Header = ({ searchQuery, onSearchChange }) => {
+const Header = ({ searchQuery, onSearchChange, onLoggedIn }) => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   const handleSearch = (e) => {
@@ -44,7 +44,7 @@ const Header = ({ searchQuery, onSearchChange }) => {
           
           <div className="action-buttons">
             <button className="action-btn" onClick={() => setIsAuthOpen(true)}>
-              👤 Account
+              🧑‍💻 Create Account
             </button>
             <button className="action-btn cart-btn">
               🛒 Cart
@@ -73,7 +73,11 @@ const Header = ({ searchQuery, onSearchChange }) => {
         </div>
       </nav>
       {isAuthOpen && (
-        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+        <AuthModal 
+          isOpen={isAuthOpen} 
+          onClose={() => setIsAuthOpen(false)} 
+          onLoggedIn={onLoggedIn}
+        />
       )}
     </header>
   );

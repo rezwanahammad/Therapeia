@@ -15,9 +15,11 @@ app.use(morgan('dev'));
 const healthRouter = require('./routes/health.routes');
 const productRouter = require('./routes/product.routes');
 const uploadRouter = require('./routes/upload.routes');
+const userRouter = require('./routes/user.routes');
 app.use('/api/health', healthRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/users', userRouter);
 
 // 404 handler
 app.use((req, res, next) => {
