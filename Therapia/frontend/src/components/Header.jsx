@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import './Header.css';
 import AuthModal from './AuthModal';
 
-const Header = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+const Header = ({ searchQuery, onSearchChange }) => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   const handleSearch = (e) => {
@@ -27,7 +26,7 @@ const Header = () => {
               type="text"
               placeholder="Search for healthcare products"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => onSearchChange(e.target.value)}
               className="search-input"
             />
             <button type="submit" className="search-button">

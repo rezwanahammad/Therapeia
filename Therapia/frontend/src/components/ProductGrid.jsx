@@ -2,10 +2,20 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import './ProductGrid.css';
 
-const ProductGrid = ({ products, selectedCategory }) => {
-  const filteredProducts = selectedCategory === 'all' 
-    ? products 
+const ProductGrid = ({ products, selectedCategory, searchQuery = '' }) => {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const byCategory = selectedCategory === 'all'
+    ? products
     : products.filter(product => product.category === selectedCategory);
+
+  const filteredProducts = normalizedQuery
+    ? byCategory.filter(product => {
+        const name = product.name?.toLowerCase() || '';
+        const category = product.category?.toLowerCase() || '';
+        return name.includes(normalizedQuery) || category.includes(normalizedQuery);
+      })
+    : byCategory;
 
   return (
     <div className="product-grid-container">

@@ -7,6 +7,7 @@ import './App.css'
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category)
@@ -14,7 +15,10 @@ function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header 
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       
       <main className="main-content">
         <div className="container">
@@ -30,6 +34,7 @@ function App() {
               <ProductGrid 
                 products={products}
                 selectedCategory={selectedCategory}
+                searchQuery={searchQuery}
               />
             </section>
           </div>
