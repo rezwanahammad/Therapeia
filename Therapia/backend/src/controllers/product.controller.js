@@ -14,7 +14,21 @@ async function listProducts(req, res, next) {
 async function createProduct(req, res, next) {
   try {
     const body = req.body || {};
-    const product = await Product.create(body);
+    // Basic required fields extraction to prevent unexpected payloads
+    const payload = {
+      name: body.name,
+      generic: body.generic,
+      price: body.price,
+      company: body.company,
+      inventory: body.inventory,
+      dosageForm: body.dosageForm,
+      strength: body.strength,
+      isPrescriptionRequired: !!body.isPrescriptionRequired,
+      imageUrl: body.imageUrl,
+      safety: body.safety,
+      category: body.category,
+    };
+    const product = await Product.create(payload);
     res.status(201).json({ product });
   } catch (err) {
     next(err);

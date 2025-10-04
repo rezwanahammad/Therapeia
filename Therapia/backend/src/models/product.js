@@ -44,6 +44,9 @@ const ProductSchema = new mongoose.Schema(
     // 7) Product photo link
     imageUrl: { type: String, required: true, trim: true },
 
+    // 8) Category
+    category: { type: String, required: true, trim: true },
+
     // tiny extras (optional)
     dosageForm: { type: String, default: 'tablet' },             // tablet/syrup/etc.
     strength: { type: String, default: '' },                     // e.g., "500 mg"
