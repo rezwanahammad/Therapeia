@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
 import { products } from './data/mockData'
 import './App.css'
-import UserDashboard from './components/UserDashboard'
+// Dashboard moved to its own route as requested
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentUser, setCurrentUser] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     try {
@@ -31,16 +33,17 @@ function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onLoggedIn={(user) => setCurrentUser(user)}
+        currentUser={currentUser}
+        onLogout={() => {
+          try { localStorage.removeItem('currentUser') } catch { /* ignore */ }
+          setCurrentUser(null)
+          navigate('/login')
+        }}
       />
       
       <main className="main-content">
         <div className="container">
-          {currentUser && (
-            <UserDashboard user={currentUser} onLogout={() => {
-              try { localStorage.removeItem('currentUser') } catch { /* ignore */ }
-              setCurrentUser(null)
-            }} />
-          )}
+          {/* Account dashboard is available on /account route */}
           <div className="content-layout">
             <aside className="sidebar">
               <CategorySidebar 

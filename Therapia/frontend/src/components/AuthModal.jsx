@@ -1,93 +1,137 @@
-import React, { useState } from 'react';
-import './AuthModal.css';
-import signupIllustration from '../assets/signup1.png';
-import UserForm from './UserForm';
-const AuthModal = ({ isOpen, onClose, onLoggedIn }) => {
-  const [mode, setMode] = useState('login'); // 'login' | 'signup'
-  const [loginId, setLoginId] = useState('');
-  const [loginStatus, setLoginStatus] = useState(null);
+﻿import React, { useState, useEffect } from 'react'
+import './AuthModal.css'
+import signupIllustration from '../assets/signup1.png'
+import UserForm from './UserForm'
+
+const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
+  const [mode, setMode] = useState(initialMode || 'login') // 'login' | 'signup'
+  const [loginMethod, setLoginMethod] = useState('phone') // 'phone' | 'email'
+  const [phoneCountry, setPhoneCountry] = useState('+88')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginStatus, setLoginStatus] = useState(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode || 'login')
+    }
+  }, [isOpen, initialMode])
 
   const handleLogin = async () => {
-    setLoginStatus('pending');
+    setLoginStatus('pending')
     try {
-      const qs = new URLSearchParams();
-      // accept either email or phone typed by user
-      if (/@/.test(loginId)) qs.set('email', loginId.trim());
-      else qs.set('phone', loginId.trim());
-      const res = await fetch(`/api/users/find?${qs.toString()}`);
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.message || `Login failed: ${res.status}`);
+      const qs = new URLSearchParams()
+      if (loginMethod === 'phone') {
+        qs.set('phone', phoneNumber.trim())
+      } else {
+        qs.set('email', email.trim())
       }
-      const user = data?.user;
-      try { localStorage.setItem('currentUser', JSON.stringify(user)); } catch { /* ignore storage errors */ }
-      setLoginStatus({ type: 'success', message: 'Logged in successfully' });
-      if (typeof onLoggedIn === 'function') onLoggedIn(user);
-      onClose();
+      const res = await fetch(`/api/users/find?${qs.toString()}`)
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.message || `Login failed: ${res.status}`)
+      }
+      const user = data?.user
+      try { localStorage.setItem('currentUser', JSON.stringify(user)) } catch { /* ignore storage errors */ }
+      setLoginStatus({ type: 'success', message: 'Logged in successfully' })
+      if (typeof onLoggedIn === 'function') onLoggedIn(user)
+      onClose()
     } catch (err) {
-      setLoginStatus({ type: 'error', message: err.message });
-      console.error('Login error:', err);
+      setLoginStatus({ type: 'error', message: err.message })
+      console.error('Login error:', err)
     }
-  };
+  }
 
-  return (!isOpen) ? null : (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="auth-close" onClick={onClose} aria-label="Close">✕</button>
+  if (!isOpen) {
+    return null
+  }
 
+  return (
+    <div className="auth-modal-overlay" role="dialog" aria-modal="true">
+      <div className="auth-modal">
+        <button className="auth-close" onClick={onClose}>×</button>
         <div className="auth-content">
-          {/* Left side illustration and text */}
           <div className="auth-left">
-            <h2 className="auth-left-title">Easy & multi-payment solutions</h2>
-            <p className="auth-left-desc">
-              You can pay in cash. Or online using your usual methods.
-            </p>
             <div className="illustration">
-              <img src={signupIllustration} alt="signup illustration" />
+              <img src={signupIllustration} alt="Signup Illustration" />
             </div>
+            <h2 className="auth-left-title">Quick & easy ordering process</h2>
+            <p className="auth-left-desc">Now you can order your medicine from Therapeia. We provide all the medicines you need.</p>
           </div>
-
-          {/* Right side: Login or Create Account */}
           <div className="auth-right">
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              <button
-                className="link-btn"
-                onClick={() => setMode('login')}
-                style={{ fontWeight: mode === 'login' ? 700 : 400 }}
-              >Login</button>
-              <span>•</span>
-              <button
-                className="link-btn"
-                onClick={() => setMode('signup')}
-                style={{ fontWeight: mode === 'signup' ? 700 : 400 }}
-              >Create Account</button>
+            <div className="toggle-buttons">
+              <button className={`toggle-btn ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Login</button>
+              <button className={`toggle-btn ${mode === 'signup' ? 'active' : ''}`} onClick={() => setMode('signup')}>Create Account</button>
             </div>
 
             {mode === 'login' ? (
               <>
                 <h2 className="auth-title">Login</h2>
-                <p className="auth-subtitle">Enter email or phone to login.</p>
-                <label className="auth-label">Email or Phone</label>
-                <input
-                  className="text-input"
-                  placeholder="you@example.com or 01XXXXXXXXX"
-                  value={loginId}
-                  onChange={e => setLoginId(e.target.value)}
-                />
-                <button className="send-btn" onClick={handleLogin} disabled={!loginId.trim()}>
-                  Login
-                </button>
-                {loginStatus === 'pending' && <p className="status">Logging in...</p>}
-                {loginStatus?.type === 'error' && <p className="status error">{loginStatus.message}</p>}
+                <p className="auth-subtitle">Login to make an order, access your orders, special offers, health tips, and more!</p>
+
+                <div className="toggle-buttons" style={{ marginBottom: 8 }}>
+                  <button className={`toggle-btn ${loginMethod === 'phone' ? 'active' : ''}`} onClick={() => setLoginMethod('phone')}>Phone</button>
+                  <button className={`toggle-btn ${loginMethod === 'email' ? 'active' : ''}`} onClick={() => setLoginMethod('email')}>Email</button>
+                </div>
+
+                {loginMethod === 'phone' ? (
+                  <>
+                    <label className="auth-label">Phone Number</label>
+                    <div className="phone-input">
+                      <select className="country-select" value={phoneCountry} onChange={e => setPhoneCountry(e.target.value)}>
+                        <option value="+88">(+88) BD</option>
+                      </select>
+                      <input
+                        className="number-input"
+                        type="tel"
+                        placeholder="Enter number"
+                        value={phoneNumber}
+                        onChange={e => setPhoneNumber(e.target.value)}
+                      />
+                    </div>
+                    <button className="referral-toggle" type="button"><span>Have a referral code?</span><span className="chevron">›</span></button>
+                    <button className="send-btn" onClick={handleLogin} disabled={!phoneNumber.trim() || phoneNumber.trim().length < 7}>Send</button>
+                    <div className="divider"><span>or</span></div>
+                    <div className="social-buttons">
+                      <button className="social-btn google">G</button>
+                      <button className="social-btn linkedin">in</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <label className="auth-label">Email</label>
+                    <input
+                      className="text-input"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                    />
+                    <label className="auth-label" style={{ marginTop: 8 }}>Password</label>
+                    <input
+                      className="text-input"
+                      type="password"
+                      placeholder="Enter password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                    <button className="send-btn" onClick={handleLogin} disabled={!email.trim() || !password.trim()}>
+                      Login
+                    </button>
+                    {loginStatus === 'pending' && <p className="status">Logging in...</p>}
+                    {loginStatus?.type === 'error' && <p className="status error">{loginStatus.message}</p>}
+                  </>
+                )}
               </>
             ) : (
               <>
                 <h2 className="auth-title">Create Account</h2>
                 <p className="auth-subtitle">Fill in your information to create an account.</p>
                 <UserForm onSuccess={(user) => {
-                  try { localStorage.setItem('currentUser', JSON.stringify(user)); localStorage.setItem('hasAccount', 'true'); } catch { /* ignore storage errors */ }
-                  if (typeof onLoggedIn === 'function') onLoggedIn(user);
-                  onClose();
+                  try { localStorage.setItem('currentUser', JSON.stringify(user)); localStorage.setItem('hasAccount', 'true') } catch { /* ignore storage errors */ }
+                  if (typeof onLoggedIn === 'function') onLoggedIn(user)
+                  onClose()
                 }} />
               </>
             )}
@@ -95,7 +139,7 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AuthModal;
+export default AuthModal

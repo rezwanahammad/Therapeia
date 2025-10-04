@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 import AuthModal from './AuthModal';
 
-const Header = ({ searchQuery, onSearchChange, onLoggedIn }) => {
+const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout }) => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('login');
+  const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -43,9 +46,24 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn }) => {
           </div>
           
           <div className="action-buttons">
-            <button className="action-btn" onClick={() => setIsAuthOpen(true)}>
-              🧑‍💻 Create Account
-            </button>
+            {currentUser ? (
+              <>
+                <button className="action-btn" onClick={() => navigate('/account')}>
+                  👋 Hello {currentUser.firstName}
+                </button>
+                <button className="action-btn" onClick={onLogout}>Logout</button>
+              </>
+            ) : (
+              <>
+                {/* Open login as popup/modal instead of navigating */}
+                <button className="action-btn" onClick={() => { setModalMode('login'); setIsAuthOpen(true); }}>
+                  🔐 Login
+                </button>
+                <button className="action-btn" onClick={() => { setModalMode('signup'); setIsAuthOpen(true); }}>
+                  🧑‍💻 Create Account
+                </button>
+              </>
+            )}
             <button className="action-btn cart-btn">
               🛒 Cart
               <span className="cart-count">0</span>
@@ -75,6 +93,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn }) => {
       {isAuthOpen && (
         <AuthModal 
           isOpen={isAuthOpen} 
+          initialMode={modalMode}
           onClose={() => setIsAuthOpen(false)} 
           onLoggedIn={onLoggedIn}
         />
