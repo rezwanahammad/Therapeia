@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import ProductDescription from './pages/ProductDescription.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
@@ -12,6 +13,7 @@ import AdminSettings from './pages/admin/AdminSettings.jsx'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
+  { path: '/product/:id', element: <ProductDescription /> },
   {
     path: '/admin',
     element: <AdminLayout />,
