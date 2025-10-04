@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 const app = express();
+const { connectDB } = require('./config/db');
 
 // Middleware
 app.use(cors());
@@ -26,6 +27,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+// Attempt DB connection then start server (even if DB fails)
+connectDB().finally(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
