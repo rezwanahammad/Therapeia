@@ -24,7 +24,7 @@
   font-weight: 600;
 }
 
-.toggle-btn {
+.category-sidebar .toggle-btn {
   background: none;
   border: none;
   font-size: 1.2rem;
@@ -37,7 +37,7 @@
   justify-content: center;
 }
 
-.toggle-btn:hover {
+.category-sidebar .toggle-btn:hover {
   color: #00b894;
 }
 

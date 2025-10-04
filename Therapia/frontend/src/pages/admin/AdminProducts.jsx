@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
+// Prefer proxy-relative paths in dev; allow explicit base via env
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
 const AdminProducts = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
@@ -52,7 +55,7 @@ const AdminProducts = () => {
     }
     const fd = new FormData()
     fd.append('image', form.imageFile)
-    const res = await fetch('/api/upload/image', {
+      const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/upload/image`, {
       method: 'POST',
       body: fd,
     })
@@ -70,7 +73,7 @@ const AdminProducts = () => {
     try {
       setLoading(true)
       setError('')
-      const res = await fetch('/api/products')
+      const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products`)
       const contentType = res.headers.get('content-type') || ''
       if (!contentType.includes('application/json')) {
         const text = await res.text()
@@ -155,7 +158,7 @@ const AdminProducts = () => {
                   liver: { status: form.safety.liver.status, en: form.safety.liver.en, bn: '' },
                 }
               }
-              const res = await fetch('/api/products', {
+              const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

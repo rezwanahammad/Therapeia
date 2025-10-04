@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './AuthModal.css'
 import signupIllustration from '../assets/signup1.png'
 import UserForm from './UserForm'
@@ -67,8 +67,8 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
           </div>
           <div className="auth-right">
             <div className="toggle-buttons">
-              <button className={`toggle-btn ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Login</button>
-              <button className={`toggle-btn ${mode === 'signup' ? 'active' : ''}`} onClick={() => setMode('signup')}>Create Account</button>
+              <button className={`auth-toggle ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Login</button>
+              <button className={`auth-toggle ${mode === 'signup' ? 'active' : ''}`} onClick={() => setMode('signup')}>Create Account</button>
             </div>
 
             {mode === 'login' ? (
@@ -76,9 +76,9 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
                 <h2 className="auth-title">Login</h2>
                 <p className="auth-subtitle">Login to make an order, access your orders, special offers, health tips, and more!</p>
 
-                <div className="toggle-buttons" style={{ marginBottom: 8 }}>
-                  <button className={`toggle-btn ${loginMethod === 'phone' ? 'active' : ''}`} onClick={() => setLoginMethod('phone')}>Phone</button>
-                  <button className={`toggle-btn ${loginMethod === 'email' ? 'active' : ''}`} onClick={() => setLoginMethod('email')}>Email</button>
+                <div className="toggle-buttons login-method-toggle">
+                  <button className={`auth-toggle ${loginMethod === 'phone' ? 'active' : ''}`} onClick={() => setLoginMethod('phone')}>Phone</button>
+                  <button className={`auth-toggle ${loginMethod === 'email' ? 'active' : ''}`} onClick={() => setLoginMethod('email')}>Email</button>
                 </div>
 
                 {loginMethod === 'phone' ? (
