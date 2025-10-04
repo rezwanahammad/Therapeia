@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './AuthModal.css';
+import loginIllustration from '../assets/login1.png';
+import signupIllustration from '../assets/signup1.png';
 
 const AuthModal = ({ isOpen, onClose }) => {
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
@@ -25,19 +27,28 @@ const AuthModal = ({ isOpen, onClose }) => {
         <div className="auth-content">
           {/* Left side illustration and text */}
           <div className="auth-left">
-            <div className="illustration">
-              <img src="/assets/react.svg" alt="illustration" />
-            </div>
-            <h2 className="auth-left-title">Quick & easy ordering process</h2>
-            <p className="auth-left-desc">
-              Now you can order your medicine from Therapeia. We provide all the
-              medicines you need.
-            </p>
-            <div className="auth-dots">
-              <span className="dot active" />
-              <span className="dot" />
-              <span className="dot" />
-            </div>
+            {mode === 'login' ? (
+              <>
+                <h2 className="auth-left-title">Quick & easy ordering process</h2>
+                <p className="auth-left-desc">
+                  Now you can order your medicine from Therapeia. We provide all the
+                  medicines you need.
+                </p>
+                <div className="illustration">
+                  <img src={loginIllustration} alt="login illustration" />
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="auth-left-title">Easy & multi-payment solutions</h2>
+                <p className="auth-left-desc">
+                  You can pay in cash. Or online using your usual methods.
+                </p>
+                <div className="illustration">
+                  <img src={signupIllustration} alt="signup illustration" />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Right side login/signup */}

@@ -41,9 +41,12 @@
   text-align: center;
 }
 
+.illustration { margin-top: 16px; }
 .illustration img {
-  width: 160px;
-  height: 160px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  object-fit: contain;
 }
 
 .auth-left-title {
