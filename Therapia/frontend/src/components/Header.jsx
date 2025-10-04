@@ -13,6 +13,16 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
     console.log('Searching for:', searchQuery);
   };
 
+  const handleLogout = async () => {
+    try {
+      if (typeof onLogout === 'function') {
+        await Promise.resolve(onLogout());
+      }
+    } finally {
+      navigate('/');
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -51,7 +61,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
                 <button className="action-btn" onClick={() => navigate('/account')}>
                   👋 Hello {currentUser.firstName}
                 </button>
-                <button className="action-btn" onClick={onLogout}>Logout</button>
+                <button className="action-btn" onClick={handleLogout}>Logout</button>
               </>
             ) : (
               <>
