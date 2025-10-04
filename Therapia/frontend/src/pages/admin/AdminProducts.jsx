@@ -12,6 +12,7 @@ const AdminProducts = () => {
     price: '',
     company: '',
     inventory: '',
+    category: '',
     dosageForm: 'tablet',
     strength: '',
     isPrescriptionRequired: false,
@@ -91,7 +92,7 @@ const AdminProducts = () => {
   const [submitting, setSubmitting] = useState(false)
 
   const validateForm = () => {
-    const required = ['name','generic','price','company','inventory']
+    const required = ['name','generic','price','company','inventory','category']
     for (const key of required) {
       const val = form[key]
       if (val === undefined || val === null || String(val).trim() === '') {
@@ -140,6 +141,7 @@ const AdminProducts = () => {
                 price: Number(form.price),
                 company: form.company.trim(),
                 inventory: Number(form.inventory),
+                category: form.category.trim(),
                 dosageForm: form.dosageForm,
                 strength: form.strength.trim(),
                 isPrescriptionRequired: !!form.isPrescriptionRequired,
@@ -172,7 +174,7 @@ const AdminProducts = () => {
               setShowForm(false)
               setForm(prev => ({
                 ...prev,
-                name: '', generic: '', price: '', company: '', inventory: '', strength: '', imageFile: null
+                name: '', generic: '', price: '', company: '', inventory: '', category: '', strength: '', imageFile: null
               }))
             } catch (err) {
               setError(err.message || 'Failed to save product')
@@ -208,6 +210,20 @@ const AdminProducts = () => {
             <div>
               <label>Inventory</label>
               <input type="number" value={form.inventory} onChange={e => setField('inventory', e.target.value)} placeholder="e.g., 100" />
+            </div>
+            <div>
+              <label>Category</label>
+              <select value={form.category} onChange={e => setField('category', e.target.value)}>
+                <option value="">Select category</option>
+                <option value="Medicine">Medicine</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Beauty">Beauty</option>
+                <option value="Baby & Mom Care">Baby & Mom Care</option>
+                <option value="Herbal">Herbal</option>
+                <option value="Home Care">Home Care</option>
+                <option value="Supplement">Supplement</option>
+                <option value="Pet Care">Pet Care</option>
+              </select>
             </div>
             <div>
               <label>Dosage Form</label>
@@ -270,6 +286,7 @@ const AdminProducts = () => {
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Generic</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Company</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Price</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Category</th>
             </tr>
           </thead>
           <tbody>
@@ -279,6 +296,7 @@ const AdminProducts = () => {
                 <td style={{ padding: '6px 0' }}>{p.generic}</td>
                 <td style={{ padding: '6px 0' }}>{p.company}</td>
                 <td style={{ padding: '6px 0' }}>{p.price}</td>
+                <td style={{ padding: '6px 0' }}>{p.category || '-'}</td>
               </tr>
             ))}
           </tbody>
