@@ -1,0 +1,14 @@
+.admin-wrapper { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.admin-sidebar { background: #0c7b67; color: #fff; padding: 20px; }
+.admin-brand { font-weight: 700; margin-bottom: 16px; }
+.admin-nav { display: flex; flex-direction: column; gap: 8px; }
+.admin-link { color: #fff; text-decoration: none; padding: 8px 10px; border-radius: 6px; }
+.admin-link.active, .admin-link:hover { background: rgba(255,255,255,0.15); }
+.admin-content { background: #f8f9fa; }
+.admin-topbar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 14px 16px; border-bottom: 1px solid #e9ecef; }
+.admin-page { padding: 16px; }
+
+@media (max-width: 768px) {
+  .admin-wrapper { grid-template-columns: 1fr; }
+  .admin-sidebar { display: none; }
+}

@@ -8,7 +8,7 @@ const ProductGrid = ({ products, selectedCategory, searchQuery = '' }) => {
   const byCategory = selectedCategory === 'all'
     ? products
     : products.filter(product => product.category === selectedCategory);
-
+    
   const filteredProducts = normalizedQuery
     ? byCategory.filter(product => {
         const name = product.name?.toLowerCase() || '';
