@@ -15,12 +15,17 @@ function App() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('currentUser')
-      if (raw) setCurrentUser(JSON.parse(raw))
-    } catch (e) {
-      console.error('Failed to load currentUser from localStorage:', e)
+    const loadMe = async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (!res.ok) return
+        const data = await res.json()
+        setCurrentUser(data.user)
+      } catch {
+        // ignore if not logged in
+      }
     }
+    loadMe()
   }, [])
 
   const handleCategorySelect = (category) => {
@@ -34,10 +39,10 @@ function App() {
         onSearchChange={setSearchQuery}
         onLoggedIn={(user) => setCurrentUser(user)}
         currentUser={currentUser}
-        onLogout={() => {
-          try { localStorage.removeItem('currentUser') } catch { /* ignore */ }
+        onLogout={async () => {
+          try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore logout errors */ }
           setCurrentUser(null)
-          navigate('/login')
+          navigate('/')
         }}
       />
       

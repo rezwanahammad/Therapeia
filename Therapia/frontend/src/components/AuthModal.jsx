@@ -5,7 +5,7 @@ import UserForm from './UserForm'
 
 const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
   const [mode, setMode] = useState(initialMode || 'login') // 'login' | 'signup'
-  const [loginMethod, setLoginMethod] = useState('phone') // 'phone' | 'email'
+  const [loginMethod, setLoginMethod] = useState('email') // 'phone' | 'email'
   const [phoneCountry, setPhoneCountry] = useState('+88')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [email, setEmail] = useState('')
@@ -21,19 +21,25 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
   const handleLogin = async () => {
     setLoginStatus('pending')
     try {
-      const qs = new URLSearchParams()
       if (loginMethod === 'phone') {
-        qs.set('phone', phoneNumber.trim())
-      } else {
-        qs.set('email', email.trim())
+        throw new Error('Phone login not yet supported. Please use email.')
       }
-      const res = await fetch(`/api/users/find?${qs.toString()}`)
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+      })
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data?.message || `Login failed: ${res.status}`)
       }
-      const user = data?.user
-      try { localStorage.setItem('currentUser', JSON.stringify(user)) } catch { /* ignore storage errors */ }
+      // Cookie is set by server; fetch current user from /api/auth/me
+      const meRes = await fetch('/api/auth/me')
+      const meData = await meRes.json()
+      if (!meRes.ok) {
+        throw new Error(meData?.message || 'Failed to load user profile')
+      }
+      const user = meData.user
       setLoginStatus({ type: 'success', message: 'Logged in successfully' })
       if (typeof onLoggedIn === 'function') onLoggedIn(user)
       onClose()
@@ -128,10 +134,16 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
               <>
                 <h2 className="auth-title">Create Account</h2>
                 <p className="auth-subtitle">Fill in your information to create an account.</p>
-                <UserForm onSuccess={(user) => {
-                  try { localStorage.setItem('currentUser', JSON.stringify(user)); localStorage.setItem('hasAccount', 'true') } catch { /* ignore storage errors */ }
-                  if (typeof onLoggedIn === 'function') onLoggedIn(user)
-                  onClose()
+                <UserForm onSuccess={async () => {
+                  try {
+                    const meRes = await fetch('/api/auth/me')
+                    const meData = await meRes.json()
+                    if (meRes.ok && typeof onLoggedIn === 'function') {
+                      onLoggedIn(meData.user)
+                    }
+                  } finally {
+                    onClose()
+                  }
                 }} />
               </>
             )}

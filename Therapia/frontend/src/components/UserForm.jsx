@@ -6,6 +6,8 @@ const initialForm = {
   lastName: '',
   email: '',
   phone: '',
+  password: '',
+  confirmPassword: '',
   gender: 'prefer_not_say',
   dateOfBirth: '',
   address: {
@@ -35,11 +37,21 @@ export default function UserForm({ onSuccess }) {
     e.preventDefault()
     setStatus('pending')
     try {
+      // Basic password validations
+      const pwd = String(form.password || '')
+      const cpwd = String(form.confirmPassword || '')
+      if (!pwd || pwd.length < 8) {
+        throw new Error('Password must be at least 8 characters')
+      }
+      if (pwd !== cpwd) {
+        throw new Error('Passwords do not match')
+      }
       const payload = {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
         phone: form.phone,
+        password: pwd,
         gender: form.gender,
         dateOfBirth: form.dateOfBirth ? new Date(form.dateOfBirth) : undefined,
         addresses: [{
@@ -52,21 +64,16 @@ export default function UserForm({ onSuccess }) {
           isDefault: true
         }]
       }
-      // Use relative path so Vite dev proxy forwards to backend
-      const res = await fetch('/api/users', {
+      // Use auth register to hash password and set session cookie
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
       if (!res.ok) throw new Error(`Request failed: ${res.status}`)
       const data = await res.json()
-      setStatus({ type: 'success', message: 'User saved successfully', id: data?.user?._id })
-      // mark account created and inform parent (AuthModal)
-      try {
-        localStorage.setItem('hasAccount', 'true')
-      } catch {
-        // Silently ignore localStorage errors
-      }
+      setStatus({ type: 'success', message: 'Account created successfully', id: data?.user?._id })
+      // Inform parent (AuthModal)
       if (typeof onSuccess === 'function') {
         onSuccess(data?.user)
       }
@@ -84,7 +91,7 @@ export default function UserForm({ onSuccess }) {
 
   return (
     <section className="user-form">
-      <h2>Create User</h2>
+      <h2>Create Account</h2>
       <form onSubmit={handleSubmit}>
         <div className="grid">
           <label>
@@ -102,6 +109,14 @@ export default function UserForm({ onSuccess }) {
           <label>
             Phone
             <input name="phone" value={form.phone} onChange={handleChange} required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" value={form.password} onChange={handleChange} required />
+          </label>
+          <label>
+            Confirm Password
+            <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required />
           </label>
           <label>
             Gender
@@ -142,7 +157,7 @@ export default function UserForm({ onSuccess }) {
           </label>
         </div>
 
-        <button type="submit">Save User</button>
+        <button type="submit">Create Account</button>
       </form>
 
       {status === 'pending' && <p className="status">Saving...</p>}

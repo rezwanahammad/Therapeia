@@ -12,13 +12,17 @@ const Login = () => {
     e.preventDefault()
     setStatus('pending')
     try {
-      const qs = new URLSearchParams()
-      qs.set('email', email.trim())
-      const res = await fetch(`/api/users/find?${qs.toString()}`)
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.message || 'Login failed')
-      // NOTE: password validation will be handled by backend endpoint in a later step
-      setCurrentUser(data.user)
+      const meRes = await fetch('/api/auth/me')
+      const meData = await meRes.json()
+      if (!meRes.ok) throw new Error(meData?.message || 'Failed to load profile')
+      setCurrentUser(meData.user)
       setStatus({ type: 'success', message: 'Logged in' })
       navigate('/')
     } catch (err) {
