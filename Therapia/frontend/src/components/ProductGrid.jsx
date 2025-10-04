@@ -6,7 +6,7 @@ const ProductGrid = ({ products, selectedCategory }) => {
   const filteredProducts = selectedCategory === 'all' 
     ? products 
     : products.filter(product => product.category === selectedCategory);
-
+    
   return (
     <div className="product-grid-container">
       <div className="grid-header">
