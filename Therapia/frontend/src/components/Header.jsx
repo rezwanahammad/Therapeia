@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Header.css';
 import AuthModal from './AuthModal';
 
@@ -59,13 +60,14 @@ const Header = () => {
       <nav className="navigation">
         <div className="nav-container">
           <div className="nav-links">
-            <a href="#" className="nav-link active">Home</a>
+            <Link to="/" className="nav-link active">Home</Link>
             <a href="#" className="nav-link">Medicine</a>
             <a href="#" className="nav-link">Healthcare</a>
             <a href="#" className="nav-link">Beauty</a>
             <a href="#" className="nav-link">Baby & Mom Care</a>
             <a href="#" className="nav-link">Herbal</a>
             <a href="#" className="nav-link">More</a>
+            <Link to="/admin" className="nav-link">Admin</Link>
           </div>
           
           <div className="contact-info">
