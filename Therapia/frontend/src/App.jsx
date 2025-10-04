@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
 import { products } from './data/mockData'
@@ -40,6 +41,7 @@ function App() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }
