@@ -4,7 +4,6 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
-import { products } from './data/mockData'
 import './App.css'
 // Dashboard moved to its own route as requested
 
@@ -12,7 +11,13 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentUser, setCurrentUser] = useState(null)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
+  
+  // Prefer proxy-relative paths in dev; allow explicit base via env
+  const API_BASE = import.meta.env.VITE_API_URL || ''
 
   useEffect(() => {
     const loadMe = async () => {
@@ -26,6 +31,43 @@ function App() {
       }
     }
     loadMe()
+  }, [])
+  
+  // Load products for the Home page from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products`)
+        const contentType = res.headers.get('content-type') || ''
+        if (!contentType.includes('application/json')) {
+          const text = await res.text()
+          throw new Error(`Expected JSON, got: ${text.slice(0, 60)}...`)
+        }
+        const data = await res.json()
+        const raw = Array.isArray(data.products) ? data.products : []
+        // Adapt API product shape to UI card needs
+        const normalized = raw.map(p => ({
+          id: p._id || p.id,
+          name: p.name,
+          price: p.price,
+          category: p.category,
+          image: p.imageUrl,
+          inStock: (p.inventory ?? 0) > 0,
+          originalPrice: p.price,
+          discount: 0,
+          rating: 0,
+          reviews: 0,
+        }))
+        setProducts(normalized)
+      } catch (e) {
+        setError(e.message || 'Failed to load products')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
   }, [])
 
   const handleCategorySelect = (category) => {
@@ -58,11 +100,15 @@ function App() {
             </aside>
             
             <section className="products-section">
-              <ProductGrid 
-                products={products}
-                selectedCategory={selectedCategory}
-                searchQuery={searchQuery}
-              />
+              {loading ? (
+                <div style={{ padding: '12px', color: '#666' }}>Loading products...</div>
+              ) : (
+                <ProductGrid 
+                  products={products}
+                  selectedCategory={selectedCategory}
+                  searchQuery={searchQuery}
+                />
+              )}
             </section>
           </div>
         </div>
