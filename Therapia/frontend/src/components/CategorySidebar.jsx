@@ -43,19 +43,7 @@ const CategorySidebar = ({ onCategorySelect, selectedCategory }) => {
         </div>
       )}
       
-      {/* Flash Sale Banner */}
-      <div className="flash-sale-banner">
-        <div className="flash-sale-header">
-          <span className="flash-icon">⚡</span>
-          <span className="flash-text">FLASH SALE</span>
-        </div>
-        <div className="flash-sale-discount">
-          Up to 76% OFF
-        </div>
-        <div className="flash-sale-time">
-          Limited Time ⏰
-        </div>
-      </div>
+      
     </div>
   );
 };
