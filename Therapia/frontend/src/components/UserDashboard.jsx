@@ -3,7 +3,7 @@ import React from 'react'
 const UserDashboard = ({ user, onLogout }) => {
   if (!user) return null
   return (
-    <section style={{ background: '#fff', border: '1px solid #e9ecef', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+    <section style={{ background: '#fff', border: '1px solid #e9ecef', borderRadius: '12px', padding: '16px', marginBottom: '16px', fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif" }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h2 style={{ margin: 0 }}>Welcome</h2>

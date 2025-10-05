@@ -9,7 +9,7 @@ const CategorySidebar = ({ onCategorySelect, selectedCategory }) => {
     <div className="category-sidebar">
       <div className="sidebar-header">
         <h3>
-          📂 Shop By Category
+          Shop By Category
         </h3>
         <button 
           className="toggle-btn"
@@ -25,7 +25,6 @@ const CategorySidebar = ({ onCategorySelect, selectedCategory }) => {
             className={`category-item ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => onCategorySelect('all')}
           >
-            <span className="category-icon">🏪</span>
             <span className="category-name">All Products</span>
           </div>
           
@@ -35,7 +34,6 @@ const CategorySidebar = ({ onCategorySelect, selectedCategory }) => {
               className={`category-item ${selectedCategory === category.name ? 'active' : ''}`}
               onClick={() => onCategorySelect(category.name)}
             >
-              <span className="category-icon">{category.icon}</span>
               <span className="category-name">{category.name}</span>
               <span className="category-arrow">›</span>
             </div>

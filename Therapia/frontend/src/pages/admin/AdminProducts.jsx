@@ -93,6 +93,7 @@ const AdminProducts = () => {
   }, [])
 
   const [submitting, setSubmitting] = useState(false)
+  const [editingId, setEditingId] = useState(null)
 
   const validateForm = () => {
     const required = ['name','generic','price','company','inventory','category']
@@ -103,7 +104,7 @@ const AdminProducts = () => {
         return false
       }
     }
-    if (!form.imageFile) {
+    if (!editingId && !form.imageFile) {
       setError('Please upload an image file')
       return false
     }
@@ -112,22 +113,18 @@ const AdminProducts = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2>Products</h2>
-        <button
-          type="button"
-          onClick={() => setShowForm(v => !v)}
-          style={{
-            background: '#0c7b67',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '8px 12px',
-            cursor: 'pointer'
-          }}
-        >
-          {showForm ? 'Close' : 'Add Product'}
-        </button>
+      <div className="admin-header">
+        <h2 className="admin-title">{editingId ? 'Edit Product' : 'Products'}</h2>
+        <div>
+          {editingId && showForm && (
+            <button type="button" className="admin-btn secondary" style={{ marginRight: 8 }} onClick={() => { setEditingId(null); setShowForm(false); }}>
+              Cancel Edit
+            </button>
+          )}
+          <button type="button" className="admin-btn" onClick={() => setShowForm(v => !v)}>
+            {showForm ? 'Close' : 'Add Product'}
+          </button>
+        </div>
       </div>
       {showForm && (
         <form
@@ -137,7 +134,7 @@ const AdminProducts = () => {
             if (!validateForm()) return
             try {
               setSubmitting(true)
-              const imageUrl = await uploadImageIfNeeded()
+              const imageUrl = editingId ? form.imageUrl : await uploadImageIfNeeded()
               const payload = {
                 name: form.name.trim(),
                 generic: form.generic.trim(),
@@ -158,8 +155,9 @@ const AdminProducts = () => {
                   liver: { status: form.safety.liver.status, en: form.safety.liver.en, bn: '' },
                 }
               }
-              const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products`, {
-                method: 'POST',
+              const url = `${API_BASE ? API_BASE + '/api' : '/api'}/products${editingId ? '/' + editingId : ''}`
+              const res = await fetch(url, {
+                method: editingId ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
               })
@@ -175,6 +173,7 @@ const AdminProducts = () => {
               // Success: refresh list and close form
               await fetchProducts()
               setShowForm(false)
+              setEditingId(null)
               setForm(prev => ({
                 ...prev,
                 name: '', generic: '', price: '', company: '', inventory: '', category: '', strength: '', imageFile: null
@@ -185,38 +184,32 @@ const AdminProducts = () => {
               setSubmitting(false)
             }
           }}
-          style={{
-            marginTop: '16px',
-            padding: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            background: '#fafafa'
-          }}
+          className="admin-card"
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
+          <div className="form-grid">
+            <div className="form-row">
               <label>Name</label>
-              <input value={form.name} onChange={e => setField('name', e.target.value)} placeholder="e.g., Napa 500" />
+              <input className="form-input" value={form.name} onChange={e => setField('name', e.target.value)} placeholder="e.g., Napa 500" />
             </div>
-            <div>
+            <div className="form-row">
               <label>Generic</label>
-              <input value={form.generic} onChange={e => setField('generic', e.target.value)} placeholder="e.g., Paracetamol" />
+              <input className="form-input" value={form.generic} onChange={e => setField('generic', e.target.value)} placeholder="e.g., Paracetamol" />
             </div>
-            <div>
+            <div className="form-row">
               <label>Price (BDT)</label>
-              <input type="number" value={form.price} onChange={e => setField('price', e.target.value)} placeholder="e.g., 8" />
+              <input className="form-input" type="number" value={form.price} onChange={e => setField('price', e.target.value)} placeholder="e.g., 8" />
             </div>
-            <div>
+            <div className="form-row">
               <label>Company</label>
-              <input value={form.company} onChange={e => setField('company', e.target.value)} placeholder="e.g., Beximco" />
+              <input className="form-input" value={form.company} onChange={e => setField('company', e.target.value)} placeholder="e.g., Beximco" />
             </div>
-            <div>
+            <div className="form-row">
               <label>Inventory</label>
-              <input type="number" value={form.inventory} onChange={e => setField('inventory', e.target.value)} placeholder="e.g., 100" />
+              <input className="form-input" type="number" value={form.inventory} onChange={e => setField('inventory', e.target.value)} placeholder="e.g., 100" />
             </div>
-            <div>
+            <div className="form-row">
               <label>Category</label>
-              <select value={form.category} onChange={e => setField('category', e.target.value)}>
+              <select className="form-select" value={form.category} onChange={e => setField('category', e.target.value)}>
                 <option value="">Select category</option>
                 <option value="Medicine">Medicine</option>
                 <option value="Healthcare">Healthcare</option>
@@ -228,54 +221,54 @@ const AdminProducts = () => {
                 <option value="Pet Care">Pet Care</option>
               </select>
             </div>
-            <div>
+            <div className="form-row">
               <label>Dosage Form</label>
-              <select value={form.dosageForm} onChange={e => setField('dosageForm', e.target.value)}>
+              <select className="form-select" value={form.dosageForm} onChange={e => setField('dosageForm', e.target.value)}>
                 <option value="tablet">Tablet</option>
                 <option value="syrup">Syrup</option>
                 <option value="capsule">Capsule</option>
                 <option value="injection">Injection</option>
               </select>
             </div>
-            <div>
+            <div className="form-row">
               <label>Strength</label>
-              <input value={form.strength} onChange={e => setField('strength', e.target.value)} placeholder="e.g., 500 mg" />
+              <input className="form-input" value={form.strength} onChange={e => setField('strength', e.target.value)} placeholder="e.g., 500 mg" />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="form-inline">
               <label>Prescription Required</label>
               <input type="checkbox" checked={form.isPrescriptionRequired} onChange={e => setField('isPrescriptionRequired', e.target.checked)} />
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
+            <div className="form-row" style={{ gridColumn: '1 / -1' }}>
               <label>Upload Image</label>
-              <input type="file" accept="image/*" onChange={handleImageChange} />
+              <input className="form-input" type="file" accept="image/*" onChange={handleImageChange} />
               {form.imageFile && (
-                <div style={{ fontSize: '12px', color: '#555' }}>Selected: {form.imageFile.name}</div>
+                <div className="hint">Selected: {form.imageFile.name}</div>
               )}
             </div>
           </div>
 
-          <div style={{ marginTop: '16px' }}>
-            <h3>Safety Advice</h3>
+          <div>
+            <h3 className="section-title">Safety Advice</h3>
             {['alcohol','pregnancy','breastfeeding','driving','kidney','liver'].map(key => (
-              <div key={key} style={{ display: 'grid', gridTemplateColumns: '180px 160px 1fr', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+              <div key={key} className="safety-grid">
                 <label style={{ textTransform: 'capitalize' }}>{key}</label>
-                <select value={form.safety[key].status} onChange={e => setSafetyField(key, 'status', e.target.value)}>
+                <select className="form-select" value={form.safety[key].status} onChange={e => setSafetyField(key, 'status', e.target.value)}>
                   <option value="safe">Safe</option>
                   <option value="unsafe">Unsafe</option>
                   <option value="caution">Caution</option>
                   <option value="safe_if_prescribed">Safe if prescribed</option>
                   <option value="unknown">Unknown</option>
                 </select>
-                <input value={form.safety[key].en} onChange={e => setSafetyField(key, 'en', e.target.value)} placeholder="Note (English)" />
+                <input className="form-input" value={form.safety[key].en} onChange={e => setSafetyField(key, 'en', e.target.value)} placeholder="Note (English)" />
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
-            <button type="submit" disabled={submitting} style={{ background: '#0c7b67', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer', opacity: submitting ? 0.7 : 1 }}>
+          <div className="form-actions">
+            <button type="submit" disabled={submitting} className="admin-btn" style={{ opacity: submitting ? 0.7 : 1 }}>
               {submitting ? 'Saving...' : 'Save Product'}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} style={{ background: '#eee', color: '#333', border: '1px solid #ddd', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer' }}>Cancel</button>
+            <button type="button" onClick={() => setShowForm(false)} className="admin-btn secondary">Cancel</button>
           </div>
         </form>
       )}
@@ -290,6 +283,7 @@ const AdminProducts = () => {
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Company</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Price</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Category</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -300,6 +294,59 @@ const AdminProducts = () => {
                 <td style={{ padding: '6px 0' }}>{p.company}</td>
                 <td style={{ padding: '6px 0' }}>{p.price}</td>
                 <td style={{ padding: '6px 0' }}>{p.category || '-'}</td>
+                <td style={{ padding: '6px 0' }}>
+                  <button
+                    type="button"
+                    className="admin-btn"
+                    style={{ padding: '6px 10px', marginRight: 6 }}
+                    onClick={() => {
+                      setForm({
+                        name: p.name || '',
+                        generic: p.generic || '',
+                        price: String(p.price ?? ''),
+                        company: p.company || '',
+                        inventory: String(p.inventory ?? ''),
+                        category: p.category || '',
+                        dosageForm: p.dosageForm || 'tablet',
+                        strength: p.strength || '',
+                        isPrescriptionRequired: !!p.isPrescriptionRequired,
+                        imageFile: null,
+                        imageUrl: p.imageUrl || '',
+                        safety: {
+                          alcohol: { status: p.safety?.alcohol?.status || 'unknown', en: p.safety?.alcohol?.en || '' },
+                          pregnancy: { status: p.safety?.pregnancy?.status || 'unknown', en: p.safety?.pregnancy?.en || '' },
+                          breastfeeding: { status: p.safety?.breastfeeding?.status || 'unknown', en: p.safety?.breastfeeding?.en || '' },
+                          driving: { status: p.safety?.driving?.status || 'unknown', en: p.safety?.driving?.en || '' },
+                          kidney: { status: p.safety?.kidney?.status || 'unknown', en: p.safety?.kidney?.en || '' },
+                          liver: { status: p.safety?.liver?.status || 'unknown', en: p.safety?.liver?.en || '' },
+                        },
+                      })
+                      setEditingId(p._id)
+                      setShowForm(true)
+                    }}
+                  >Edit</button>
+                  <button
+                    type="button"
+                    className="admin-btn secondary"
+                    style={{ padding: '6px 10px' }}
+                    onClick={async () => {
+                      if (!confirm('Delete this product?')) return
+                      try {
+                        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products/${p._id}`, { method: 'DELETE' })
+                        const contentType = res.headers.get('content-type') || ''
+                        if (!contentType.includes('application/json')) {
+                          const text = await res.text()
+                          throw new Error(`Unexpected response: ${text.slice(0, 60)}...`)
+                        }
+                        const data = await res.json()
+                        if (!res.ok) throw new Error(data.message || 'Failed to delete')
+                        await fetchProducts()
+                      } catch (err) {
+                        setError(err.message || 'Delete failed')
+                      }
+                    }}
+                  >Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>
