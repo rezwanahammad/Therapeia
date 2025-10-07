@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './AuthModal.css'
 import signupIllustration from '../assets/signup1.png'
 import UserForm from './UserForm'
+import { setCurrentUser as persistUser } from '../utils/auth'
 
 const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
   const [mode, setMode] = useState(initialMode || 'login') // 'login' | 'signup'
@@ -41,6 +42,8 @@ const AuthModal = ({ isOpen, onClose, onLoggedIn, initialMode = 'login' }) => {
       }
       const user = meData.user
       setLoginStatus({ type: 'success', message: 'Logged in successfully' })
+      // Persist login for other pages
+      persistUser(user)
       if (typeof onLoggedIn === 'function') onLoggedIn(user)
       onClose()
     } catch (err) {

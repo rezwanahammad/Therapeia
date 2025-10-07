@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
 import './App.css'
+import { setCurrentUser as persistUser, clearCurrentUser } from './utils/auth'
 // Dashboard moved to its own route as requested
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null)
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
   const navigate = useNavigate()
   
   // Prefer proxy-relative paths in dev; allow explicit base via env
@@ -26,6 +27,8 @@ function App() {
         if (!res.ok) return
         const data = await res.json()
         setCurrentUser(data.user)
+        // Keep localStorage in sync when session cookie is valid
+        persistUser(data.user)
       } catch {
         // ignore if not logged in
       }
@@ -79,11 +82,12 @@ function App() {
       <Header 
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onLoggedIn={(user) => setCurrentUser(user)}
+        onLoggedIn={(user) => { setCurrentUser(user); persistUser(user); }}
         currentUser={currentUser}
         onLogout={async () => {
           try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore logout errors */ }
           setCurrentUser(null)
+          clearCurrentUser()
           navigate('/')
         }}
       />

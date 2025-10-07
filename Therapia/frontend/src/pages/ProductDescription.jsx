@@ -58,7 +58,7 @@ const ProductDescription = () => {
   if (loading) {
     return (
       <>
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={currentUser} onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }} onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }} />
         <main className="pd-page">
           <div className="pd-container">
             <div>Loading product...</div>
@@ -71,7 +71,7 @@ const ProductDescription = () => {
   if (error || !product) {
     return (
       <>
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={currentUser} onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }} onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }} />
         <main className="pd-page">
           <div className="pd-container">
             <h2>{error || 'Product not found'}</h2>
@@ -128,7 +128,13 @@ const ProductDescription = () => {
 
   return (
     <>
-      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <Header 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+        currentUser={currentUser}
+        onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }}
+        onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }}
+      />
       <main className="pd-page">
         <div className="pd-container">
           <div className="pd-content">
