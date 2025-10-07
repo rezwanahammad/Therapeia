@@ -27,7 +27,15 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
     <header className="header">
       <div className="header-container">
         {/* Logo */}
-        <div className="logo">
+        <div
+          className="logo"
+          onClick={() => navigate('/')}
+          onKeyDown={(e) => { if (e.key === 'Enter') navigate('/'); }}
+          role="button"
+          tabIndex={0}
+          aria-label="Go to Home"
+          style={{ cursor: 'pointer' }}
+        >
           <h1>Therapeia</h1>
           <span className="tagline">Your Health Partner</span>
         </div>
@@ -74,9 +82,9 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
                 </button>
               </>
             )}
-            <button className="action-btn cart-btn">
+            <button className="action-btn cart-btn" onClick={() => navigate('/cart')}>
               🛒 Cart
-              <span className="cart-count">0</span>
+              <span className="cart-count">{(currentUser?.cart?.length ?? 0)}</span>
             </button>
           </div>
         </div>

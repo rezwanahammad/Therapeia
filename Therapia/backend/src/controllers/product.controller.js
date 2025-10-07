@@ -74,3 +74,16 @@ async function deleteProduct(req, res, next) {
 }
 
 module.exports = { listProducts, createProduct, updateProduct, deleteProduct };
+// GET /api/products/:id
+async function getProductById(req, res, next) {
+  try {
+    const id = req.params.id;
+    const product = await Product.findById(id).lean();
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    return res.json({ product });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports.getProductById = getProductById;

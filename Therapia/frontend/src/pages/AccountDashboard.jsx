@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { getCurrentUser } from '../utils/auth'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 import './account.css'
 
 function splitName(fullName = '') {
@@ -12,6 +14,9 @@ function splitName(fullName = '') {
 const AccountDashboard = () => {
   const [user, setUser] = useState(getCurrentUser())
   const [status, setStatus] = useState(null)
+  const [cart, setCart] = useState([])
+  const [cartStatus, setCartStatus] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const initialForm = useMemo(() => {
     const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ')
     return {
@@ -41,6 +46,52 @@ const AccountDashboard = () => {
     }
     load()
   }, [])
+
+  useEffect(() => {
+    const loadCart = async () => {
+      if (!user?._id) { setCart([]); return; }
+      try {
+        setCartStatus('pending')
+        const res = await fetch(`/api/users/${user._id}/cart`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data?.message || 'Failed to load cart')
+        setCart(data.cart || [])
+        setCartStatus('success')
+      } catch (err) {
+        setCartStatus({ type: 'error', message: err.message })
+        console.error('Load cart error:', err)
+      }
+    }
+    loadCart()
+  }, [user?._id])
+
+  const updateQty = async (itemId, quantity) => {
+    if (!user?._id) return
+    try {
+      const res = await fetch(`/api/users/${user._id}/cart/${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Failed to update cart')
+      setCart(data.cart || [])
+    } catch (err) {
+      console.error('Update qty error:', err)
+    }
+  }
+
+  const removeItem = async (itemId) => {
+    if (!user?._id) return
+    try {
+      const res = await fetch(`/api/users/${user._id}/cart/${itemId}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Failed to remove item')
+      setCart(data.cart || [])
+    } catch (err) {
+      console.error('Remove item error:', err)
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -75,19 +126,27 @@ const AccountDashboard = () => {
 
   if (!user) {
     return (
-      <div className="account-wrapper">
-        <div className="account-content">
-          <div className="account-card">
-            <h2>Account Dashboard</h2>
-            <p>Please log in to view your dashboard.</p>
+      <>
+        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <main className="main-content">
+          <div className="account-wrapper">
+            <div className="account-content">
+              <div className="account-card">
+                <h2>Account Dashboard</h2>
+                <p>Please log in to view your dashboard.</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </main>
+        <Footer />
+      </>
     )
   }
 
   return (
-    <div className="account-wrapper">
+    <>
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={user} />
+      <div className="account-wrapper">
       <aside className="account-sidebar">
         <div className="account-user">
           <div className="avatar">👤</div>
@@ -118,6 +177,43 @@ const AccountDashboard = () => {
         </div>
       </aside>
       <main className="account-content">
+        {user?._id && (
+          <div className="account-card" style={{ marginBottom: '1rem' }}>
+            <h3 style={{ marginTop: 0 }}>My Cart</h3>
+            {cartStatus === 'pending' && <p>Loading cart...</p>}
+            {Array.isArray(cart) && cart.length === 0 && cartStatus !== 'pending' && (
+              <p>Your cart is empty.</p>
+            )}
+            {Array.isArray(cart) && cart.length > 0 && (
+              <div>
+                {cart.map((ci) => (
+                  <div key={ci._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #eee' }}>
+                    <img src={ci.product?.imageUrl} alt={ci.product?.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600 }}>{ci.product?.name}</div>
+                      <div style={{ color: '#666' }}>৳{ci.product?.price} · {ci.product?.company}</div>
+                      <div style={{ color: '#888', fontSize: '0.85rem' }}>Available: {Number.isFinite(Number(ci.product?.inventory)) ? Number(ci.product?.inventory) : '—'}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button
+                        onClick={() => updateQty(ci._id, Math.max(1, (ci.quantity || 1) - 1))}
+                        disabled={(ci.quantity || 1) <= 1}
+                        style={{ padding: '4px 8px', opacity: (ci.quantity || 1) <= 1 ? 0.5 : 1, cursor: (ci.quantity || 1) <= 1 ? 'not-allowed' : 'pointer' }}
+                      >−</button>
+                      <span>{ci.quantity || 1}</span>
+                      <button
+                        onClick={() => updateQty(ci._id, (ci.quantity || 1) + 1)}
+                        disabled={Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)}
+                        style={{ padding: '4px 8px', opacity: (Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)) ? 0.5 : 1, cursor: (Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)) ? 'not-allowed' : 'pointer' }}
+                      >+</button>
+                    </div>
+                    <button onClick={() => removeItem(ci._id)} style={{ padding: '6px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6 }}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <header className="account-topbar">
           <h1>View Profile</h1>
         </header>
@@ -175,6 +271,8 @@ const AccountDashboard = () => {
         </div>
       </main>
     </div>
+      <Footer />
+    </>
   )
 }
 
