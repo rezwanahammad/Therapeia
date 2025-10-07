@@ -96,7 +96,7 @@ const ProductDescription = () => {
             <img src={product.imageUrl || product.image} alt={product.name} />
           </div>
           <div className="pd-details">
-            <h2 className="pd-name">Here is your {product.name}</h2>
+            <h2 className="pd-name">{product.name}</h2>
             <div className="pd-meta">
               <span className="pd-category">{product.category}</span>
               <div className="pd-rating">
@@ -146,6 +146,43 @@ const ProductDescription = () => {
               {product.dosageForm && <p><strong>Dosage Form:</strong> {product.dosageForm}</p>}
               {product.isPrescriptionRequired ? <p><strong>Prescription:</strong> Required</p> : <p><strong>Prescription:</strong> Not required</p>}
             </div>
+
+            {product.safety && (
+              <div className="safety-section">
+                <h3 style={{ margin: 0, marginBottom: '0.5rem' }}>Safety Advices</h3>
+                {[
+                  { key: 'alcohol', label: 'Alcohol' },
+                  { key: 'pregnancy', label: 'Pregnancy' },
+                  { key: 'breastfeeding', label: 'Breastfeeding' },
+                  { key: 'driving', label: 'Driving' },
+                  { key: 'kidney', label: 'Kidney' },
+                  { key: 'liver', label: 'Liver' },
+                ].map(({ key, label }) => {
+                  const item = product.safety?.[key] || { status: 'unknown', en: '' };
+                  const status = String(item.status || 'unknown');
+                  const statusLabel =
+                    status === 'unsafe' ? 'UNSAFE' :
+                    status === 'safe' ? 'SAFE' :
+                    status === 'caution' ? 'CAUTION' :
+                    status === 'safe_if_prescribed' ? 'SAFE IF PRESCRIBED' : 'UNKNOWN';
+                  const statusClass =
+                    status === 'unsafe' ? 'red' :
+                    status === 'safe' ? 'green' :
+                    status === 'caution' ? 'orange' :
+                    status === 'safe_if_prescribed' ? 'amber' : 'gray';
+                  const note = item.en || '';
+                  return (
+                    <div key={key} className="safety-item">
+                      <div className={`safety-badge ${statusClass}`}>{statusLabel}</div>
+                      <div className="safety-content">
+                        <div className="safety-title">{label}</div>
+                        <div className="safety-note">{note || 'No specific guidance available.'}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
