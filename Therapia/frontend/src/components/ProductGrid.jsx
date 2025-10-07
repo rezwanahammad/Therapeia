@@ -2,7 +2,7 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import './ProductGrid.css';
 
-const ProductGrid = ({ products, selectedCategory, searchQuery = '' }) => {
+const ProductGrid = ({ products, selectedCategory, searchQuery = '', currentUser }) => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const byCategory = selectedCategory === 'all'
@@ -37,7 +37,7 @@ const ProductGrid = ({ products, selectedCategory, searchQuery = '' }) => {
       ) : (
         <div className="product-grid">
           {filteredProducts.map(product => (
-            <ProductCard key={product.id || product._id} product={product} />
+            <ProductCard key={product.id || product._id} product={product} currentUser={currentUser} />
           ))}
         </div>
       )}

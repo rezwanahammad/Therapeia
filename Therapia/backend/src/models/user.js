@@ -48,6 +48,16 @@ const InsuranceSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Cart item schema: store product reference, quantity and snapshot price
+const CartItemSchema = new mongoose.Schema(
+  {
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'product', required: true },
+    quantity: { type: Number, default: 1, min: 1 },
+    priceAtAdd: { type: Number, min: 0 },
+    addedAt: { type: Date, default: Date.now }
+  }
+);
+
 const PreferencesSchema = new mongoose.Schema(
   {
     sms: { type: Boolean, default: true },
@@ -84,6 +94,9 @@ const UserSchema = new mongoose.Schema(
       passwordHash: { type: String, select: false },
       emailVerified: { type: Boolean, default: false }
     },
+
+    // Persistent cart tied to user
+    cart: { type: [CartItemSchema], default: [] },
 
     preferences: { type: PreferencesSchema, default: {} }
   },

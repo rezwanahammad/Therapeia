@@ -107,6 +107,7 @@ function App() {
                   products={products}
                   selectedCategory={selectedCategory}
                   searchQuery={searchQuery}
+                  currentUser={currentUser}
                 />
               )}
             </section>
