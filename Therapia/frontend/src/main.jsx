@@ -8,12 +8,15 @@ import AccountDashboard from './pages/AccountDashboard.jsx'
 import ProductDescription from './pages/ProductDescription.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
+import Cart from './pages/Cart.jsx'
+import NotificationProvider from './components/NotificationProvider.jsx'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/login', element: <Login /> },
   { path: '/account', element: <AccountDashboard /> },
   { path: '/product/:id', element: <ProductDescription /> },
+  { path: '/cart', element: <Cart /> },
   {
     path: '/admin',
     element: <AdminLayout />,
@@ -26,6 +29,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <NotificationProvider>
+      <RouterProvider router={router} />
+    </NotificationProvider>
   </StrictMode>,
 )
