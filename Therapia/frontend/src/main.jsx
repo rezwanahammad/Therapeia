@@ -8,15 +8,22 @@ import AccountDashboard from './pages/AccountDashboard.jsx'
 import ProductDescription from './pages/ProductDescription.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
+import RequireAdmin from './components/admin/RequireAdmin.jsx'
+import AdminLogin from './pages/admin/AdminLogin.jsx'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/login', element: <Login /> },
   { path: '/account', element: <AccountDashboard /> },
   { path: '/product/:id', element: <ProductDescription /> },
+  { path: '/admin/login', element: <AdminLogin /> },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <RequireAdmin>
+        <AdminLayout />
+      </RequireAdmin>
+    ),
     children: [
       { index: true, element: <div>Admin Dashboard</div> },
       { path: 'products', element: <AdminProducts /> },
