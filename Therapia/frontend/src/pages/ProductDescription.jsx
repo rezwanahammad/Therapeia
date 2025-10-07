@@ -1,36 +1,77 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { products } from '../data/mockData';
 import './ProductDescription.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const ProductDescription = () => {
   const { id } = useParams();
-  const product = useMemo(() => products.find((p) => String(p.id) === String(id)), [id]);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isBuying, setIsBuying] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  if (!product) {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/products/${id}`);
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const text = await res.text();
+          throw new Error(`Expected JSON, got: ${text.slice(0, 60)}...`);
+        }
+        const data = await res.json();
+        const p = data.product || data;
+        if (!p || (!p._id && !p.id)) throw new Error('Product not found');
+        setProduct(p);
+      } catch (e) {
+        setError(e.message || 'Failed to load product');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
     return (
       <>
         <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
         <main className="pd-page">
           <div className="pd-container">
-            <h2>Product not found</h2>
+            <div>Loading product...</div>
           </div>
         </main>
       </>
     );
   }
 
-  const fullStars = Math.floor(product.rating);
-  const hasHalfStar = product.rating % 1 !== 0;
-  const emptyStars = 5 - Math.ceil(product.rating);
+  if (error || !product) {
+    return (
+      <>
+        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <main className="pd-page">
+          <div className="pd-container">
+            <h2>{error || 'Product not found'}</h2>
+          </div>
+        </main>
+      </>
+    );
+  }
 
-  const totalPrice = (product.price * quantity).toFixed(2);
+  const rating = Number(product.rating || 0);
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  const emptyStars = 5 - Math.ceil(rating);
+
+  const totalPrice = ((product.price || 0) * quantity).toFixed(2);
 
   const increment = () => setQuantity((q) => Math.min(q + 1, 99));
   const decrement = () => setQuantity((q) => Math.max(q - 1, 1));
@@ -52,13 +93,10 @@ const ProductDescription = () => {
         <div className="pd-container">
           <div className="pd-content">
           <div className="pd-image">
-            <img src={product.image} alt={product.name} />
-            {product.discount > 0 && (
-              <span className="pd-discount">{product.discount}% OFF</span>
-            )}
+            <img src={product.imageUrl || product.image} alt={product.name} />
           </div>
           <div className="pd-details">
-            <h2 className="pd-name">Here is your {product.name}</h2>
+            <h2 className="pd-name">{product.name}</h2>
             <div className="pd-meta">
               <span className="pd-category">{product.category}</span>
               <div className="pd-rating">
@@ -69,18 +107,15 @@ const ProductDescription = () => {
                 {[...Array(emptyStars)].map((_, i) => (
                   <span key={`e-${i}`} className="star empty">★</span>
                 ))}
-                <span className="pd-reviews">({product.reviews})</span>
+                {product.reviews ? <span className="pd-reviews">({product.reviews})</span> : null}
               </div>
             </div>
 
             <div className="pd-pricing">
               <span className="pd-price">৳{product.price}</span>
-              {product.originalPrice > product.price && (
-                <span className="pd-original">৳{product.originalPrice}</span>
-              )}
             </div>
 
-            <div className="pd-stock">{product.inStock ? 'In Stock ✅' : 'Out of Stock ❌'}</div>
+            <div className="pd-stock">{(product.inventory ?? 0) > 0 ? `In stock: ${product.inventory}` : 'Out of Stock ❌'}</div>
 
             <div className="pd-qty">
               <span>Quantity</span>
@@ -99,16 +134,59 @@ const ProductDescription = () => {
             </div>
 
             <div className="pd-actions">
-              <button className="btn-cart" onClick={handleAddToCart} disabled={!product.inStock}>Add to Cart</button>
-              <button className="btn-buy" onClick={handleBuyNow} disabled={!product.inStock}>Buy Now</button>
+              <button className="btn-cart" onClick={handleAddToCart} disabled={(product.inventory ?? 0) <= 0}>Add to Cart</button>
+              <button className="btn-buy" onClick={handleBuyNow} disabled={(product.inventory ?? 0) <= 0}>Buy Now</button>
             </div>
 
             <div className="pd-summary">
               <div>Total: <strong>৳{totalPrice}</strong></div>
+              <p><strong>Generic:</strong> {product.generic}</p>
+              <p><strong>Company:</strong> {product.company}</p>
+              {product.strength && <p><strong>Strength:</strong> {product.strength}</p>}
+              {product.dosageForm && <p><strong>Dosage Form:</strong> {product.dosageForm}</p>}
+              {product.isPrescriptionRequired ? <p><strong>Prescription:</strong> Required</p> : <p><strong>Prescription:</strong> Not required</p>}
             </div>
-          </div>
-        </div>
 
+            {/* Safety advices moved below to full-width section */}
+          </div>
+          {/* Move full-width safety section below the grid */}
+          {product.safety && (
+            <div className="safety-section full-width">
+              <h3 style={{ margin: 0, marginBottom: '0.5rem' }}>Safety Advices</h3>
+              {[
+                { key: 'alcohol', label: 'Alcohol' },
+                { key: 'pregnancy', label: 'Pregnancy' },
+                { key: 'breastfeeding', label: 'Breastfeeding' },
+                { key: 'driving', label: 'Driving' },
+                { key: 'kidney', label: 'Kidney' },
+                { key: 'liver', label: 'Liver' },
+              ].map(({ key, label }) => {
+                const item = product.safety?.[key] || { status: 'unknown', en: '' };
+                const status = String(item.status || 'unknown');
+                const statusLabel =
+                  status === 'unsafe' ? 'UNSAFE' :
+                  status === 'safe' ? 'SAFE' :
+                  status === 'caution' ? 'CAUTION' :
+                  status === 'safe_if_prescribed' ? 'SAFE IF PRESCRIBED' : 'UNKNOWN';
+                const statusClass =
+                  status === 'unsafe' ? 'red' :
+                  status === 'safe' ? 'green' :
+                  status === 'caution' ? 'orange' :
+                  status === 'safe_if_prescribed' ? 'amber' : 'gray';
+                const note = item.en || '';
+                return (
+                  <div key={key} className="safety-item">
+                    <div className={`safety-badge ${statusClass}`}>{statusLabel}</div>
+                    <div className="safety-content">
+                      <div className="safety-title">{label}</div>
+                      <div className="safety-note">{note || 'No specific guidance available.'}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
         {isBuying && (
           <div className="buy-modal" role="dialog" aria-modal="true">
             <div className="buy-content">

@@ -6,7 +6,7 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/product/${product.id}`);
+    navigate(`/product/${product._id || product.id}`);
   };
 
   const handleAddToCart = (e) => {
@@ -44,7 +44,7 @@ const ProductCard = ({ product }) => {
       )}
       
       <div className="product-image">
-        <img src={product.image} alt={product.name} />
+        <img src={product.imageUrl || product.image} alt={product.name} />
       </div>
       
       <div className="product-info">
