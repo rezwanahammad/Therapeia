@@ -1,17 +1,39 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
+import { useNotifications } from './NotificationProvider';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, currentUser }) => {
   const navigate = useNavigate();
+  const { notify } = useNotifications();
 
   const handleCardClick = () => {
     navigate(`/product/${product._id || product.id}`);
   };
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation();
-    console.log('Added to cart:', product.name);
+    // If not authenticated, redirect to login
+    if (!currentUser?._id) {
+      navigate('/login');
+      return;
+    }
+    // Prevent adding when not in stock
+    if (!product.inStock) return;
+
+    try {
+      const res = await fetch(`/api/users/${currentUser._id}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product._id || product.id, quantity: 1 })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Failed to add to cart');
+      notify({ title: 'Added to Cart', message: product.name, type: 'success' });
+    } catch (err) {
+      console.error('Add to cart error:', err);
+      notify({ title: 'Add to Cart Failed', message: err.message, type: 'error' });
+    }
   };
 
   const renderStars = (rating) => {

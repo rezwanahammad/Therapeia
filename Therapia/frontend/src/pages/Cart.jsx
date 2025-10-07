@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Header from '../components/Header'
+import { useNotifications } from '../components/NotificationProvider'
 import Footer from '../components/Footer'
 import AuthModal from '../components/AuthModal'
 import { getCurrentUser, setCurrentUser } from '../utils/auth'
+import { useNavigate } from 'react-router-dom'
 
 const Cart = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -11,6 +13,8 @@ const Cart = () => {
   const [status, setStatus] = useState(null)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login')
+  const navigate = useNavigate()
+  const { notify } = useNotifications()
 
   useEffect(() => {
     const onAuthChanged = (e) => {
@@ -50,9 +54,10 @@ const Cart = () => {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.message || 'Failed to update cart')
       setCart(data.cart || [])
+      notify({ title: 'Quantity Updated', type: 'success' })
     } catch (err) {
       console.error('Update qty error:', err)
-      alert(err.message)
+      notify({ title: 'Update Failed', message: err.message, type: 'error' })
     }
   }
 
@@ -63,9 +68,10 @@ const Cart = () => {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.message || 'Failed to remove item')
       setCart(data.cart || [])
+      notify({ title: 'Removed from Cart', type: 'success' })
     } catch (err) {
       console.error('Remove item error:', err)
-      alert(err.message)
+      notify({ title: 'Remove Failed', message: err.message, type: 'error' })
     }
   }
 
@@ -99,9 +105,33 @@ const Cart = () => {
                 <div>
                   {cart.map(ci => (
                     <div key={ci._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                      <img src={ci.product?.imageUrl} alt={ci.product?.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }} />
+                      <img
+                        src={ci.product?.imageUrl}
+                        alt={ci.product?.name}
+                        style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, cursor: (ci.product?._id || ci.product?.id) ? 'pointer' : 'default' }}
+                        onClick={() => {
+                          const pid = ci.product?._id || ci.product?.id
+                          if (pid) navigate(`/product/${pid}`)
+                        }}
+                      />
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600 }}>{ci.product?.name}</div>
+                        <div
+                          style={{ fontWeight: 600, cursor: (ci.product?._id || ci.product?.id) ? 'pointer' : 'default' }}
+                          role="link"
+                          tabIndex={0}
+                          onClick={() => {
+                            const pid = ci.product?._id || ci.product?.id
+                            if (pid) navigate(`/product/${pid}`)
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const pid = ci.product?._id || ci.product?.id
+                              if (pid) navigate(`/product/${pid}`)
+                            }
+                          }}
+                        >
+                          {ci.product?.name}
+                        </div>
                         <div style={{ color: '#666' }}>৳{ci.product?.price} · {ci.product?.company}</div>
                         <div style={{ color: '#888', fontSize: '0.85rem' }}>Available: {Number.isFinite(Number(ci.product?.inventory)) ? Number(ci.product?.inventory) : '—'}</div>
                       </div>

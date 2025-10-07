@@ -9,6 +9,7 @@ import ProductDescription from './pages/ProductDescription.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
 import Cart from './pages/Cart.jsx'
+import NotificationProvider from './components/NotificationProvider.jsx'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
@@ -28,6 +29,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <NotificationProvider>
+      <RouterProvider router={router} />
+    </NotificationProvider>
   </StrictMode>,
 )
