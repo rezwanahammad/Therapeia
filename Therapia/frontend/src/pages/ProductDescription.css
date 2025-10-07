@@ -28,6 +28,7 @@
 .btn-cart:disabled, .btn-buy:disabled { opacity: 0.6; cursor: not-allowed; }
 .pd-summary { margin-top: 1rem; font-size: 1rem; }
 .safety-section { margin-top: 1rem; background: #fff; border: 1px solid #eceff1; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.safety-section.full-width { grid-column: 1 / -1; }
 .safety-item { display: grid; grid-template-columns: 140px 1fr; gap: 0.75rem; padding: 0.5rem 0; border-top: 1px solid #f1f3f4; align-items: start; }
 .safety-item:first-child { border-top: none; }
 .safety-badge { display: inline-block; font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; color: #fff; }
