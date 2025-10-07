@@ -1,0 +1,148 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import AuthModal from '../components/AuthModal'
+import { getCurrentUser, setCurrentUser } from '../utils/auth'
+
+const Cart = () => {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [user, setUser] = useState(getCurrentUser())
+  const [cart, setCart] = useState([])
+  const [status, setStatus] = useState(null)
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [authMode, setAuthMode] = useState('login')
+
+  useEffect(() => {
+    const onAuthChanged = (e) => {
+      const next = e?.detail?.user || getCurrentUser()
+      setUser(next)
+    }
+    window.addEventListener('authChanged', onAuthChanged)
+    return () => window.removeEventListener('authChanged', onAuthChanged)
+  }, [])
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user?._id) { setCart([]); return }
+      try {
+        setStatus('pending')
+        const res = await fetch(`/api/users/${user._id}/cart`)
+        const data = await res.json()
+        if (!res.ok) throw new Error(data?.message || 'Failed to load cart')
+        setCart(data.cart || [])
+        setStatus('success')
+      } catch (err) {
+        setStatus({ type: 'error', message: err.message })
+        console.error('Load cart error:', err)
+      }
+    }
+    load()
+  }, [user?._id])
+
+  const updateQty = async (itemId, quantity) => {
+    if (!user?._id) return
+    try {
+      const res = await fetch(`/api/users/${user._id}/cart/${itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Failed to update cart')
+      setCart(data.cart || [])
+    } catch (err) {
+      console.error('Update qty error:', err)
+      alert(err.message)
+    }
+  }
+
+  const removeItem = async (itemId) => {
+    if (!user?._id) return
+    try {
+      const res = await fetch(`/api/users/${user._id}/cart/${itemId}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.message || 'Failed to remove item')
+      setCart(data.cart || [])
+    } catch (err) {
+      console.error('Remove item error:', err)
+      alert(err.message)
+    }
+  }
+
+  return (
+    <>
+      <Header 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery}
+        currentUser={user}
+        onLoggedIn={(u) => { setCurrentUser(u); setUser(u); }}
+        onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}; setCurrentUser(null); setUser(null); }}
+      />
+      <main className="main-content">
+        <div className="container" style={{ maxWidth: 960 }}>
+          <h2 style={{ marginTop: '1rem' }}>My Cart</h2>
+          {!user?._id && (
+            <div style={{ background: '#fff', border: '1px solid #e9ecef', borderRadius: 12, padding: 16 }}>
+              <p>You are not logged in. Please log in or create an account to view your cart.</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => { setAuthMode('login'); setIsAuthOpen(true) }} style={{ background: '#10847e', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 12px' }}>Login</button>
+                <button onClick={() => { setAuthMode('signup'); setIsAuthOpen(true) }} style={{ background: '#0c6f68', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 12px' }}>Create Account</button>
+              </div>
+            </div>
+          )}
+
+          {user?._id && (
+            <div style={{ background: '#fff', border: '1px solid #e9ecef', borderRadius: 12, padding: 16 }}>
+              {status === 'pending' && <p>Loading cart...</p>}
+              {Array.isArray(cart) && cart.length === 0 && status !== 'pending' && <p>Your cart is empty.</p>}
+              {Array.isArray(cart) && cart.length > 0 && (
+                <div>
+                  {cart.map(ci => (
+                    <div key={ci._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                      <img src={ci.product?.imageUrl} alt={ci.product?.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600 }}>{ci.product?.name}</div>
+                        <div style={{ color: '#666' }}>৳{ci.product?.price} · {ci.product?.company}</div>
+                        <div style={{ color: '#888', fontSize: '0.85rem' }}>Available: {Number.isFinite(Number(ci.product?.inventory)) ? Number(ci.product?.inventory) : '—'}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button
+                          onClick={() => updateQty(ci._id, Math.max(1, (ci.quantity || 1) - 1))}
+                          disabled={(ci.quantity || 1) <= 1}
+                          style={{ padding: '4px 8px', opacity: (ci.quantity || 1) <= 1 ? 0.5 : 1, cursor: (ci.quantity || 1) <= 1 ? 'not-allowed' : 'pointer' }}
+                        >−</button>
+                        <span>{ci.quantity || 1}</span>
+                        <button
+                          onClick={() => updateQty(ci._id, (ci.quantity || 1) + 1)}
+                          disabled={Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)}
+                          style={{ padding: '4px 8px', opacity: (Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)) ? 0.5 : 1, cursor: (Number(ci.product?.inventory ?? Infinity) <= 0 || (ci.quantity || 1) >= Number(ci.product?.inventory ?? Infinity)) ? 'not-allowed' : 'pointer' }}
+                        >+</button>
+                      </div>
+                      <button onClick={() => removeItem(ci._id)} style={{ padding: '6px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6 }}>Remove</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </main>
+      <AuthModal
+        isOpen={isAuthOpen}
+        initialMode={authMode}
+        onClose={() => setIsAuthOpen(false)}
+        onLoggedIn={async (u) => {
+          try {
+            setCurrentUser(u)
+            setUser(u)
+          } finally {
+            setIsAuthOpen(false)
+          }
+        }}
+      />
+      <Footer />
+    </>
+  )
+}
+
+export default Cart

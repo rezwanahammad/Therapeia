@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import './ProductDescription.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import AuthModal from '../components/AuthModal';
+import { getCurrentUser, setCurrentUser } from '../utils/auth';
 
 const ProductDescription = () => {
   const { id } = useParams();
@@ -11,6 +13,19 @@ const ProductDescription = () => {
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isBuying, setIsBuying] = useState(false);
+  const [currentUser, setUserState] = useState(getCurrentUser());
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  const [pendingAddQty, setPendingAddQty] = useState(0);
+
+  useEffect(() => {
+    const onAuthChanged = (e) => {
+      const user = e?.detail?.user || getCurrentUser();
+      setUserState(user);
+    };
+    window.addEventListener('authChanged', onAuthChanged);
+    return () => window.removeEventListener('authChanged', onAuthChanged);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -73,11 +88,36 @@ const ProductDescription = () => {
 
   const totalPrice = ((product.price || 0) * quantity).toFixed(2);
 
-  const increment = () => setQuantity((q) => Math.min(q + 1, 99));
+  const maxQty = Math.min(99, Number(product?.inventory ?? 99));
+  const increment = () => setQuantity((q) => Math.min(q + 1, maxQty));
   const decrement = () => setQuantity((q) => Math.max(q - 1, 1));
 
-  const handleAddToCart = () => {
-    alert(`Added ${quantity} x ${product.name} to cart`);
+  const handleAddToCart = async () => {
+    if (!currentUser?._id) {
+      setPendingAddQty(quantity);
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/users/${currentUser._id}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product._id || product.id, quantity })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Failed to add to cart');
+      const meRes = await fetch('/api/auth/me');
+      const meData = await meRes.json();
+      if (meRes.ok && meData.user) {
+        setCurrentUser(meData.user);
+        setUserState(meData.user);
+      }
+      alert(`Added ${quantity} x ${product.name} to cart`);
+    } catch (err) {
+      alert(err.message);
+      console.error('Add to cart failed:', err);
+    }
   };
 
   const handleBuyNow = () => {
@@ -120,16 +160,28 @@ const ProductDescription = () => {
             <div className="pd-qty">
               <span>Quantity</span>
               <div className="qty-controls">
-                <button onClick={decrement} className="qty-btn" aria-label="Decrease quantity">−</button>
+                <button
+                  onClick={decrement}
+                  className="qty-btn"
+                  aria-label="Decrease quantity"
+                  disabled={quantity <= 1}
+                  style={{ opacity: quantity <= 1 ? 0.5 : 1, cursor: quantity <= 1 ? 'not-allowed' : 'pointer' }}
+                >−</button>
                 <input
                   type="number"
                   min={1}
-                  max={99}
+                  max={maxQty}
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, Math.min(99, Number(e.target.value) || 1)))}
                   className="qty-input"
                 />
-                <button onClick={increment} className="qty-btn" aria-label="Increase quantity">+</button>
+                <button
+                  onClick={increment}
+                  className="qty-btn"
+                  aria-label="Increase quantity"
+                  disabled={(product.inventory ?? 0) <= 0 || quantity >= maxQty}
+                  style={{ opacity: ((product.inventory ?? 0) <= 0 || quantity >= maxQty) ? 0.5 : 1, cursor: ((product.inventory ?? 0) <= 0 || quantity >= maxQty) ? 'not-allowed' : 'pointer' }}
+                >+</button>
               </div>
             </div>
 
@@ -207,6 +259,40 @@ const ProductDescription = () => {
         )}
         </div>
       </main>
+      {/* Auth modal for login/signup when adding to cart */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        initialMode={authMode}
+        onClose={() => setIsAuthOpen(false)}
+        onLoggedIn={async (user) => {
+          try {
+            setCurrentUser(user);
+            setUserState(user);
+            if (pendingAddQty > 0) {
+              const res = await fetch(`/api/users/${user._id}/cart`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: product._id || product.id, quantity: pendingAddQty })
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data?.message || 'Failed to add to cart');
+              const meRes = await fetch('/api/auth/me');
+              const meData = await meRes.json();
+              if (meRes.ok && meData.user) {
+                setCurrentUser(meData.user);
+                setUserState(meData.user);
+              }
+              alert(`Added ${pendingAddQty} x ${product.name} to cart`);
+            }
+          } catch (err) {
+            console.error('Post-login add to cart failed:', err);
+            alert(err.message);
+          } finally {
+            setPendingAddQty(0);
+            setIsAuthOpen(false);
+          }
+        }}
+      />
       <Footer />
     </>
   );
