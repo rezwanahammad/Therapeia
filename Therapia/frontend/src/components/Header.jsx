@@ -81,11 +81,13 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
             <span className="delivery-text">Deliver to</span>
             <span
               className="location"
-              role={!currentUser ? 'button' : undefined}
-              tabIndex={!currentUser ? 0 : -1}
-              onClick={() => { if (!currentUser) navigate('/login'); }}
-              onKeyDown={(e) => { if (!currentUser && e.key === 'Enter') navigate('/login'); }}
-              style={{ cursor: !currentUser ? 'pointer' : 'default' }}
+              role="button"
+              tabIndex={0}
+              aria-label="Manage delivery address"
+              title="Manage delivery address"
+              onClick={() => { navigate(currentUser ? '/account' : '/login'); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate(currentUser ? '/account' : '/login'); }}
+              style={{ cursor: 'pointer' }}
             >
               {locationText}
             </span>

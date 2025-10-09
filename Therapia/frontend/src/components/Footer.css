@@ -1,6 +1,10 @@
 .footer {
   background: #111;
   color: #e9ecef;
+  width: 100%;
+  /* Sticky footer: sits at bottom when content is short,
+     follows content when page is long */
+  margin-top: auto;
 }
 
 .footer-container {
