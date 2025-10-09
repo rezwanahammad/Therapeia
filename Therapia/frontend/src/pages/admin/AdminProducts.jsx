@@ -282,6 +282,7 @@ const AdminProducts = () => {
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Generic</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Company</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Price</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Available</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Category</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Actions</th>
             </tr>
@@ -293,6 +294,7 @@ const AdminProducts = () => {
                 <td style={{ padding: '6px 0' }}>{p.generic}</td>
                 <td style={{ padding: '6px 0' }}>{p.company}</td>
                 <td style={{ padding: '6px 0' }}>{p.price}</td>
+                <td style={{ padding: '6px 0' }}>{Number.isFinite(Number(p.inventory)) ? Number(p.inventory) : '—'}</td>
                 <td style={{ padding: '6px 0' }}>{p.category || '-'}</td>
                 <td style={{ padding: '6px 0' }}>
                   <button
