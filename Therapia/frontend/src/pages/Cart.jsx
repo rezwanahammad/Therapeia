@@ -15,6 +15,9 @@ const Cart = () => {
   const [authMode, setAuthMode] = useState('login')
   const navigate = useNavigate()
   const { notify } = useNotifications()
+  const total = useMemo(() => Array.isArray(cart)
+    ? cart.reduce((sum, ci) => sum + Number(ci.product?.price || 0) * Number(ci.quantity || 1), 0)
+    : 0, [cart])
 
   useEffect(() => {
     const onAuthChanged = (e) => {
@@ -72,6 +75,34 @@ const Cart = () => {
     } catch (err) {
       console.error('Remove item error:', err)
       notify({ title: 'Remove Failed', message: err.message, type: 'error' })
+    }
+  }
+
+  const placeOrder = async () => {
+    if (!user?._id) {
+      setAuthMode('login')
+      setIsAuthOpen(true)
+      return
+    }
+    if (!Array.isArray(cart) || cart.length === 0) {
+      notify({ title: 'Cart Empty', message: 'Add items before checkout', type: 'info' })
+      return
+    }
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({})
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.message || 'Failed to create order')
+      const orderId = data?.order?._id
+      notify({ title: 'Order Placed', message: `Order #${String(orderId || '').slice(-6)}`, type: 'success' })
+      if (orderId) navigate(`/orders/${orderId}`)
+    } catch (err) {
+      console.error('Create order error:', err)
+      notify({ title: 'Checkout Failed', message: err.message, type: 'error' })
     }
   }
 
@@ -151,6 +182,10 @@ const Cart = () => {
                       <button onClick={() => removeItem(ci._id)} style={{ padding: '6px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6 }}>Remove</button>
                     </div>
                   ))}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                    <div style={{ fontWeight: 600 }}>Total: ৳{Number(total).toFixed(2)}</div>
+                    <button onClick={placeOrder} style={{ background: '#10847e', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 14px' }}>Confirm Order</button>
+                  </div>
                 </div>
               )}
             </div>
