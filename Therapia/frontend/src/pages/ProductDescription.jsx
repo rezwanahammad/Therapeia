@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthModal from '../components/AuthModal';
 import { getCurrentUser, setCurrentUser } from '../utils/auth';
+import { useNotifications } from '../components/NotificationProvider';
 
 const ProductDescription = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const ProductDescription = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [pendingAddQty, setPendingAddQty] = useState(0);
+  const { notify } = useNotifications();
 
   useEffect(() => {
     const onAuthChanged = (e) => {
@@ -113,9 +115,9 @@ const ProductDescription = () => {
         setCurrentUser(meData.user);
         setUserState(meData.user);
       }
-      alert(`Added ${quantity} x ${product.name} to cart`);
+      notify({ title: 'Added to Cart', message: `${quantity} × ${product.name}`, type: 'success' });
     } catch (err) {
-      alert(err.message);
+      notify({ title: 'Add to Cart Failed', message: err.message, type: 'error' });
       console.error('Add to cart failed:', err);
     }
   };
