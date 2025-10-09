@@ -23,6 +23,25 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
     }
   };
 
+  // Compute display address for logged-in user; fallback to "Kuet" when not logged in
+  const resolveLocationText = () => {
+    // Prefer default address from addresses array; fallback to single `address` field if present
+    const addresses = Array.isArray(currentUser?.addresses) ? currentUser.addresses : [];
+    let def = addresses.find(a => a?.isDefault) || addresses[0];
+    if (!def && currentUser?.address) {
+      def = currentUser.address; // in case some users have `address` single object
+    }
+    if (!def) return null;
+    const parts = [
+      def.line1 || def.addressLine1 || def.street,
+      def.city,
+      def.state,
+    ].filter(Boolean);
+    const joined = parts.join(', ');
+    return joined || def.city || def.country || null;
+  };
+  const locationText = resolveLocationText() || (currentUser ? `${currentUser.firstName}'s address` : 'Kuet');
+
   return (
     <header className="header">
       <div className="header-container">
@@ -60,7 +79,16 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
         <div className="user-actions">
           <div className="delivery-info">
             <span className="delivery-text">Deliver to</span>
-            <span className="location">📍 Dhaka</span>
+            <span
+              className="location"
+              role={!currentUser ? 'button' : undefined}
+              tabIndex={!currentUser ? 0 : -1}
+              onClick={() => { if (!currentUser) navigate('/login'); }}
+              onKeyDown={(e) => { if (!currentUser && e.key === 'Enter') navigate('/login'); }}
+              style={{ cursor: !currentUser ? 'pointer' : 'default' }}
+            >
+              {locationText}
+            </span>
           </div>
           
           <div className="action-buttons">
@@ -75,10 +103,10 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
               <>
                 {/* Open login as popup/modal instead of navigating */}
                 <button className="action-btn" onClick={() => { setModalMode('login'); setIsAuthOpen(true); }}>
-                  🔐 Login
+                  Login
                 </button>
                 <button className="action-btn" onClick={() => { setModalMode('signup'); setIsAuthOpen(true); }}>
-                  🧑‍💻 Create Account
+                Create Account
                 </button>
               </>
             )}
@@ -104,7 +132,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
           </div>
           
           <div className="contact-info">
-            📞 Call for Order: 16778
+            Call for Order: 210707
           </div>
         </div>
       </nav>

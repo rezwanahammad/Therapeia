@@ -54,7 +54,7 @@ export default function UserForm({ onSuccess }) {
         password: pwd,
         gender: form.gender,
         dateOfBirth: form.dateOfBirth ? new Date(form.dateOfBirth) : undefined,
-        addresses: [{
+        address: {
           label: 'home',
           line1: form.address.line1,
           city: form.address.city,
@@ -62,7 +62,7 @@ export default function UserForm({ onSuccess }) {
           postalCode: form.address.postalCode,
           country: form.address.country,
           isDefault: true
-        }]
+        }
       }
       // Use auth register to hash password and set session cookie
       const res = await fetch('/api/auth/register', {

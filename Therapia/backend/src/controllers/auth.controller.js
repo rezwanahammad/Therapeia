@@ -38,6 +38,7 @@ async function register(req, res, next) {
       gender,
       dateOfBirth,
       address,
+      addresses,
     } = req.body || {};
 
     if (!email || !phone || !firstName || !lastName || !password) {
@@ -51,6 +52,9 @@ async function register(req, res, next) {
 
     const passwordHash = await bcrypt.hash(String(password), 10);
 
+    // Accept either `address` object or first element of `addresses` array
+    const addr = address || (Array.isArray(addresses) ? addresses[0] : null);
+
     const doc = {
       firstName,
       lastName,
@@ -58,7 +62,16 @@ async function register(req, res, next) {
       phone,
       gender: gender || 'prefer_not_say',
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-      addresses: address ? [{ ...address, label: 'home', isDefault: true }] : [],
+      addresses: addr ? [{
+        label: addr.label || 'home',
+        line1: addr.line1,
+        line2: addr.line2 || '',
+        city: addr.city,
+        state: addr.state || '',
+        postalCode: addr.postalCode || '',
+        country: addr.country || 'Bangladesh',
+        isDefault: typeof addr.isDefault === 'boolean' ? addr.isDefault : true,
+      }] : [],
       auth: { passwordHash, emailVerified: false },
     };
 
