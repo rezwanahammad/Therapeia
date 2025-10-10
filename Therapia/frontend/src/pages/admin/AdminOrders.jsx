@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNotifications } from '../../components/NotificationProvider'
 
 export default function AdminOrders() {
@@ -33,6 +33,20 @@ export default function AdminOrders() {
     return () => { cancelled = true }
   }, [])
 
+  const nextStatusMap = {
+    pending: 'processing',
+    processing: 'shipped',
+    shipped: 'delivered',
+  }
+
+  const grouped = useMemo(() => {
+    const by = { pending: [], processing: [], shipped: [], delivered: [] }
+    for (const o of orders) {
+      if (by[o.status]) by[o.status].push(o)
+    }
+    return by
+  }, [orders])
+
   async function setStatus(id, status) {
     try {
       const res = await fetch(`/api/admin/orders/${id}/status`, {
@@ -50,43 +64,7 @@ export default function AdminOrders() {
     }
   }
 
-  async function setTracking(id) {
-    const trackingNumber = prompt('Enter tracking number')
-    if (!trackingNumber) return
-    try {
-      const res = await fetch(`/api/admin/orders/${id}/tracking`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ trackingNumber })
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.message || 'Failed to update tracking')
-      setOrders(os => os.map(o => o._id === id ? data.order : o))
-      notify({ title: 'Tracking Updated', message: `Order ${String(id).slice(-6)} tracking set`, type: 'success' })
-    } catch (err) {
-      notify({ title: 'Update Tracking Failed', message: err.message, type: 'error' })
-    }
-  }
-
-  async function cancel(id) {
-    const reason = prompt('Enter cancel reason')
-    if (!reason) return
-    try {
-      const res = await fetch(`/api/admin/orders/${id}/cancel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ reason })
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.message || 'Failed to cancel order')
-      setOrders(os => os.map(o => o._id === id ? data.order : o))
-      notify({ title: 'Order Canceled', message: `Order ${String(id).slice(-6)} canceled`, type: 'info' })
-    } catch (err) {
-      notify({ title: 'Cancel Failed', message: err.message, type: 'error' })
-    }
-  }
+  // Tracking and Cancel actions removed from list per new design
 
   async function openAudit(id) {
     setAuditOrderId(id)
@@ -107,37 +85,12 @@ export default function AdminOrders() {
       <h2>Orders</h2>
       {loading && <p>Loading…</p>}
       {error && <p style={{ color: '#c62828' }}>{error}</p>}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Order</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>User</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Status</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Payment</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Total</th>
-            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map(o => (
-            <tr key={o._id}>
-              <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
-              <td style={{ padding: 8 }}>{String(o.user).slice(-6)}</td>
-              <td style={{ padding: 8 }}>{o.status}</td>
-              <td style={{ padding: 8 }}>{o.paymentStatus}{o.paymentMethod ? ` (${o.paymentMethod})` : ''}</td>
-              <td style={{ padding: 8 }}>৳{Number(o.totalAmount).toFixed(2)}</td>
-              <td style={{ padding: 8 }}>
-                <button onClick={() => setStatus(o._id, 'processing')}>Process</button>{' '}
-                <button onClick={() => setStatus(o._id, 'shipped')}>Ship</button>{' '}
-                <button onClick={() => setStatus(o._id, 'delivered')}>Deliver</button>{' '}
-                <button onClick={() => setTracking(o._id)}>Tracking</button>{' '}
-                <button onClick={() => cancel(o._id)} style={{ color: '#ef4444' }}>Cancel</button>
-                {' '}<button onClick={() => openAudit(o._id)}>Audit</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      <Section title="Pending" items={grouped.pending} onNext={setStatus} nextStatusMap={nextStatusMap} />
+      <Section title="Processing" items={grouped.processing} onNext={setStatus} nextStatusMap={nextStatusMap} />
+      <Section title="Shipping" items={grouped.shipped} onNext={setStatus} nextStatusMap={nextStatusMap} />
+      <Section title="Delivered" items={grouped.delivered} onNext={setStatus} nextStatusMap={nextStatusMap} />
+
       {auditOrderId && (
         <div style={{ marginTop: 16 }}>
           <h3>Audit Trail for #{String(auditOrderId).slice(-6)}</h3>
@@ -155,6 +108,57 @@ export default function AdminOrders() {
             </ul>
           )}
         </div>
+      )}
+    </div>
+  )
+}
+
+function Section({ title, items, onNext, nextStatusMap }) {
+  return (
+    <div className="admin-card" style={{ marginBottom: 16 }}>
+      <div className="admin-header">
+        <h3 className="admin-title">{title}</h3>
+      </div>
+      {items.length === 0 ? (
+        <p style={{ color: '#6b7280' }}>No orders.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Order</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>User</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Status</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Payment</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Total</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(o => {
+              const next = nextStatusMap[o.status]
+              const label = o.status === 'pending' ? 'Process' : o.status === 'processing' ? 'Ship' : o.status === 'shipped' ? 'Deliver' : '—'
+              const canNext = Boolean(next)
+              return (
+                <tr key={o._id}>
+                  <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
+                  <td style={{ padding: 8 }}>{String(o.user).slice(-6)}</td>
+                  <td style={{ padding: 8 }}>{o.status}</td>
+                  <td style={{ padding: 8 }}>{o.paymentStatus}{o.paymentMethod ? ` (${o.paymentMethod})` : ''}</td>
+                  <td style={{ padding: 8 }}>৳{Number(o.totalAmount).toFixed(2)}</td>
+                  <td style={{ padding: 8 }}>
+                    <button
+                      className="admin-btn"
+                      disabled={!canNext}
+                      onClick={() => canNext && onNext(o._id, next)}
+                      style={{ opacity: canNext ? 1 : 0.5 }}
+                    >{label}</button>
+                    {' '}<button className="admin-btn secondary" onClick={() => openAudit(o._id)}>Audit</button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       )}
     </div>
   )

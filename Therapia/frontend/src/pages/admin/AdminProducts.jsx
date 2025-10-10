@@ -290,12 +290,12 @@ const AdminProducts = () => {
           <tbody>
             {products.map(p => (
               <tr key={p._id}>
-                <td style={{ padding: '6px 0' }}>{p.name}</td>
-                <td style={{ padding: '6px 0' }}>{p.generic}</td>
-                <td style={{ padding: '6px 0' }}>{p.company}</td>
-                <td style={{ padding: '6px 0' }}>{p.price}</td>
-                <td style={{ padding: '6px 0' }}>{Number.isFinite(Number(p.inventory)) ? Number(p.inventory) : '—'}</td>
-                <td style={{ padding: '6px 0' }}>{p.category || '-'}</td>
+                <td style={{ padding: '6px 0', width: '15%' }}>{p.name}</td>
+                <td style={{ padding: '6px 0', width: '20%' }}>{p.generic}</td>
+                <td style={{ padding: '6px 0', width: '20%' }}>{p.company}</td>
+                <td style={{ padding: '6px 0', width: '10%' }}>{p.price}</td>
+                <td style={{ padding: '6px 0', width: '10%' }}>{Number.isFinite(Number(p.inventory)) ? Number(p.inventory) : '—'}</td>
+                <td style={{ padding: '6px 0', width: '10%' }}>{p.category || '-'}</td>
                 <td style={{ padding: '6px 0' }}>
                   <button
                     type="button"

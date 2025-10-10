@@ -9,6 +9,7 @@ import ProductDescription from './pages/ProductDescription.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
 import AdminOrders from './pages/admin/AdminOrders.jsx'
+import AdminUsers from './pages/admin/AdminUsers.jsx'
 import RequireAdmin from './components/admin/RequireAdmin.jsx'
 import AdminLogin from './pages/admin/AdminLogin.jsx'
 import Cart from './pages/Cart.jsx'
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
       { index: true, element: <div>Admin Dashboard</div> },
       { path: 'products', element: <AdminProducts /> },
       { path: 'orders', element: <AdminOrders /> },
+      { path: 'users', element: <AdminUsers /> },
     ],
   },
 ])

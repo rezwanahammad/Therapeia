@@ -70,6 +70,9 @@ export default function OrderHistory() {
               <div style={{ marginTop: 8 }}>
                 <StatusBadge status={o.status} />
               </div>
+              <div style={{ marginTop: 8 }}>
+                <NextStageButton status={o.status} />
+              </div>
               <div style={{ marginTop: 8, color: '#555' }}>Total: ৳{Number(o.totalAmount).toFixed(2)}</div>
             </li>
           ))}
@@ -93,5 +96,15 @@ function StatusBadge({ status }) {
     <span style={{ background: bg, color: '#fff', padding: '4px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600 }}>
       {status}
     </span>
+  )
+}
+
+function NextStageButton({ status }) {
+  const nextLabel = status === 'pending' ? 'Process' : status === 'processing' ? 'Ship' : status === 'shipped' ? 'Deliver' : 'Complete'
+  const disabled = !['pending', 'processing', 'shipped'].includes(status)
+  return (
+    <button className="admin-btn" disabled style={{ opacity: 0.5 }} title="Only admins can advance order stages">
+      {nextLabel}
+    </button>
   )
 }
