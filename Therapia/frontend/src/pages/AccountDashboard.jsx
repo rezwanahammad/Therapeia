@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import { getCurrentUser } from '../utils/auth'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -275,7 +276,7 @@ const AccountDashboard = () => {
   if (!user) {
     return (
       <>
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={user} onLoggedIn={() => {}} onLogout={() => {}} />
         <main className="main-content">
           <div className="account-wrapper">
             <div className="account-content">
@@ -293,7 +294,7 @@ const AccountDashboard = () => {
 
   return (
     <>
-      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={user} />
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={user} onLoggedIn={() => {}} onLogout={() => {}} />
       <div className="account-wrapper">
         <aside className="account-sidebar">
           <div className="account-user">

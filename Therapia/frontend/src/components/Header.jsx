@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Header.css';
 import AuthModal from './AuthModal';
 
+
 const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout }) => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [modalMode, setModalMode] = useState('login');
@@ -69,8 +70,8 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
               onChange={(e) => onSearchChange(e.target.value)}
               className="search-input"
             />
-            <button type="submit" className="search-button">
-              🔍
+            <button type="submit" className="search-button" aria-label="Search">
+              Search
             </button>
           </form>
         </div>
@@ -97,7 +98,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
             {currentUser ? (
               <>
                 <button className="action-btn" onClick={() => navigate('/account')}>
-                  👋 Hello {currentUser.firstName}
+                  Hello {currentUser.firstName}
                 </button>
                 <button className="action-btn" onClick={handleLogout}>Logout</button>
               </>
@@ -120,24 +121,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="navigation">
-        <div className="nav-container">
-          <div className="nav-links">
-            <a href="#" className="nav-link active">Home</a>
-            <a href="#" className="nav-link">Medicine</a>
-            <a href="#" className="nav-link">Healthcare</a>
-            <a href="#" className="nav-link">Beauty</a>
-            <a href="#" className="nav-link">Baby & Mom Care</a>
-            <a href="#" className="nav-link">Herbal</a>
-            <a href="#" className="nav-link">More</a>
-          </div>
-          
-          <div className="contact-info">
-            Call for Order: 210707
-          </div>
-        </div>
-      </nav>
+      {/* Navigation removed as requested */}
       {isAuthOpen && (
         <AuthModal 
           isOpen={isAuthOpen} 

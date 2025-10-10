@@ -6,6 +6,7 @@ import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
 import './App.css'
 import { setCurrentUser as persistUser, clearCurrentUser } from './utils/auth'
+import heroDoctor from './assets/hero-doctor.png'
 // Dashboard moved to its own route as requested
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await fetch('/api/auth/me')
+        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/me`)
         if (!res.ok) return
         const data = await res.json()
         setCurrentUser(data.user)
@@ -85,7 +86,7 @@ function App() {
         onLoggedIn={(user) => { setCurrentUser(user); persistUser(user); }}
         currentUser={currentUser}
         onLogout={async () => {
-          try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore logout errors */ }
+          try { await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/logout`, { method: 'POST' }) } catch { /* ignore logout errors */ }
           setCurrentUser(null)
           clearCurrentUser()
           navigate('/')
@@ -94,6 +95,31 @@ function App() {
       
       <main className="main-content">
         <div className="container">
+          {/* Hero section */}
+          <section className="hero">
+            <div className="hero-inner">
+              <div className="hero-text">
+                <h2 className="hero-title">Your Health, Our Priority: Quality Medicines Delivered</h2>
+                <p className="hero-subtitle">Discover a comprehensive range of medicines, health supplements, and wellness products. Fast, reliable delivery right to your doorstep.</p>
+                <button
+                  type="button"
+                  className="hero-cta"
+                  onClick={() => {
+                    const el = document.querySelector('.products-section')
+                    if (el) {
+                      const top = el.getBoundingClientRect().top + window.scrollY - 80
+                      window.scrollTo({ top, behavior: 'smooth' })
+                    }
+                  }}
+                >
+                  Explore Products
+                </button>
+              </div>
+              <div className="hero-image">
+                <img src={heroDoctor} alt="Doctor consulting a patient" />
+              </div>
+            </div>
+          </section>
           {/* Account dashboard is available on /account route */}
           <div className="content-layout">
             <aside className="sidebar">
