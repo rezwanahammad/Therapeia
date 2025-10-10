@@ -5,14 +5,14 @@ import Footer from './components/Footer'
 import CategorySidebar from './components/CategorySidebar'
 import ProductGrid from './components/ProductGrid'
 import './App.css'
-import { setCurrentUser as persistUser, clearCurrentUser } from './utils/auth'
+import { setCurrentUser as persistUser, clearCurrentUser, getCurrentUser } from './utils/auth'
 import heroDoctor from './assets/hero-doctor.png'
 // Dashboard moved to its own route as requested
 
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUser, setCurrentUser] = useState(getCurrentUser())
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [, setError] = useState('')
@@ -24,7 +24,7 @@ function App() {
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/me`)
+        const res = await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/me`, { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         setCurrentUser(data.user)
@@ -86,7 +86,7 @@ function App() {
         onLoggedIn={(user) => { setCurrentUser(user); persistUser(user); }}
         currentUser={currentUser}
         onLogout={async () => {
-          try { await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/logout`, { method: 'POST' }) } catch { /* ignore logout errors */ }
+          try { await fetch(`${API_BASE ? API_BASE + '/api' : '/api'}/auth/logout`, { method: 'POST', credentials: 'include' }) } catch { /* ignore logout errors */ }
           setCurrentUser(null)
           clearCurrentUser()
           navigate('/')
