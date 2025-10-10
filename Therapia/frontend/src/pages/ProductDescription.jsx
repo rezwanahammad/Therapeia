@@ -6,6 +6,8 @@ import Footer from '../components/Footer';
 import AuthModal from '../components/AuthModal';
 import { getCurrentUser, setCurrentUser } from '../utils/auth';
 import { useNotifications } from '../components/NotificationProvider';
+import ChatModal from '../components/ChatModal';
+import '../components/ChatModal.css';
 
 const ProductDescription = () => {
   const { id } = useParams();
@@ -30,6 +32,8 @@ const ProductDescription = () => {
   }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
+  // Chat modal toggle
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Avoid using import.meta.env due to module target diagnostics; rely on proxy.
   const API_BASE = '';
@@ -139,6 +143,8 @@ const ProductDescription = () => {
       console.error('Add to cart failed:', err);
     }
   };
+
+  // Inline chat removed; ChatModal handles sending
 
   const handleBuyNow = () => {
     setIsBuying(true);
@@ -255,6 +261,11 @@ const ProductDescription = () => {
               })}
             </div>
           )}
+
+          {/* Floating chat trigger */}
+          <button type="button" className="floating-chat-trigger" onClick={() => setIsChatOpen(true)}>
+            💬 Chat
+          </button>
         </div>
         {isBuying && (
           <div className="buy-modal" role="dialog" aria-modal="true">
@@ -309,6 +320,13 @@ const ProductDescription = () => {
             setIsAuthOpen(false);
           }
         }}
+      />
+      {/* Chat modal for product page; use generic instead of brand name */}
+      <ChatModal
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        mode="product"
+        productGeneric={product?.generic || ''}
       />
       <Footer />
     </>

@@ -27,6 +27,7 @@ const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
 const adminAuthRouter = require('./routes/adminAuth.routes');
 const orderRouter = require('./routes/order.routes');
+const chatRouter = require('./routes/chat.routes');
 const adminOrderRouter = require('./routes/adminOrder.routes');
 app.use('/api/health', healthRouter);
 app.use('/api/products', productRouter);
@@ -36,6 +37,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/admin/orders', adminOrderRouter);
+app.use('/api/chat', chatRouter);
 
 // 404 handler
 app.use((req, res, next) => {
