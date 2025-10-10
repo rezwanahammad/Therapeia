@@ -127,6 +127,17 @@
   background: #0c6f68;
 }
 
+/* Orders button: match cart styling, with subtle package emoji */
+.orders-btn {
+  background: #10847e;
+  color: #fff;
+  border: none;
+}
+
+.orders-btn:hover {
+  background: #0c6f68;
+}
+
 .cart-count {
   position: absolute;
   top: -8px;

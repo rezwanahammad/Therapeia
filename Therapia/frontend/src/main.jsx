@@ -15,13 +15,22 @@ import Cart from './pages/Cart.jsx'
 import NotificationProvider from './components/NotificationProvider.jsx'
 import OrderHistory from './pages/OrderHistory.jsx'
 import OrderDetail from './pages/OrderDetail.jsx'
+import RequireAuth from './components/RequireAuth.jsx'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/login', element: <Login /> },
   { path: '/account', element: <AccountDashboard /> },
-  { path: '/orders', element: <OrderHistory /> },
-  { path: '/orders/:id', element: <OrderDetail /> },
+  { path: '/orders', element: (
+    <RequireAuth>
+      <OrderHistory />
+    </RequireAuth>
+  ) },
+  { path: '/orders/:id', element: (
+    <RequireAuth>
+      <OrderDetail />
+    </RequireAuth>
+  ) },
   { path: '/product/:id', element: <ProductDescription /> },
   { path: '/admin/login', element: <AdminLogin /> },
   { path: '/cart', element: <Cart /> },
