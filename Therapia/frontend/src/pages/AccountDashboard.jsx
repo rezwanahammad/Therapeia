@@ -72,21 +72,7 @@ const AccountDashboard = () => {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSelectAddress = (e) => {
-    const idx = Number(e.target.value)
-    const addrs = Array.isArray(user?.addresses) ? user.addresses : []
-    const a = addrs[idx] || {}
-    setForm(prev => ({
-      ...prev,
-      selectedAddressIndex: idx,
-      addressLine1: a.line1 || '',
-      addressLine2: a.line2 || '',
-      city: a.city || '',
-      state: a.state || '',
-      postalCode: a.postalCode || '',
-      country: a.country || 'Bangladesh',
-    }))
-  }
+  // Removed handleSelectAddress since multi-address dropdown was removed.
 
   const updateProfile = async () => {
     if (!user?._id) return
@@ -157,7 +143,7 @@ const AccountDashboard = () => {
     setActiveSection(name)
   }
 
-  const savedAddresses = Array.isArray(user?.addresses) ? user.addresses : []
+  // Removed multi-address selection; profile keeps a single editable address
 
   const renderLegalContent = () => {
     if (activeSection === 'Terms & Conditions') {
@@ -371,45 +357,17 @@ const AccountDashboard = () => {
                 </div>
                 <div style={{ marginTop: 8 }}>
                   <h3 style={{ marginTop: 0 }}>Edit Delivery Address</h3>
-                  {savedAddresses.length > 0 && (
-                    <div className="form-row">
-                      <label>Choose Delivery Address</label>
-                      <select name="selectedAddressIndex" value={form.selectedAddressIndex ?? 0} onChange={handleSelectAddress}>
-                        {savedAddresses.map((a, i) => (
-                          <option key={i} value={i}>{`address${i + 1}`}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  <div className="grid-2">
-                    <div className="form-row">
-                      <label>Address 1</label>
-                      <input name="addressLine1" value={form.addressLine1} onChange={handleChange} />
-                    </div>
-                    <div className="form-row">
-                      <label>Address 2</label>
-                      <input name="addressLine2" value={form.addressLine2} onChange={handleChange} />
-                    </div>
+                  <div className="form-row">
+                    <label>Address 1</label>
+                    <input name="addressLine1" value={form.addressLine1} onChange={handleChange} />
                   </div>
-                  <div className="grid-2">
-                    <div className="form-row">
-                      <label>City</label>
-                      <input name="city" value={form.city} onChange={handleChange} />
-                    </div>
-                    <div className="form-row">
-                      <label>State</label>
-                      <input name="state" value={form.state} onChange={handleChange} />
-                    </div>
+                  <div className="form-row">
+                    <label>City</label>
+                    <input name="city" value={form.city} onChange={handleChange} />
                   </div>
-                  <div className="grid-2">
-                    <div className="form-row">
-                      <label>Postal Code</label>
-                      <input name="postalCode" value={form.postalCode} onChange={handleChange} />
-                    </div>
-                    <div className="form-row">
-                      <label>Country</label>
-                      <input name="country" value={form.country} onChange={handleChange} />
-                    </div>
+                  <div className="form-row">
+                    <label>Postal Code</label>
+                    <input name="postalCode" value={form.postalCode} onChange={handleChange} />
                   </div>
                 </div>
                 <div className="actions">
