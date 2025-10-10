@@ -68,38 +68,7 @@
   -webkit-box-orient: vertical;
 }
 
-.product-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.stars {
-  display: flex;
-  gap: 1px;
-}
-
-.star {
-  font-size: 0.9rem;
-  color: #ddd;
-}
-
-.star.filled {
-  color: #ffc107;
-}
-
-.star.half {
-  background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.rating-text {
-  font-size: 0.8rem;
-  color: #666;
-}
+/* Rating and review styles removed */
 
 .product-pricing {
   display: flex;

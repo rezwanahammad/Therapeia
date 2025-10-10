@@ -26,12 +26,16 @@ const uploadRouter = require('./routes/upload.routes');
 const userRouter = require('./routes/user.routes');
 const authRouter = require('./routes/auth.routes');
 const adminAuthRouter = require('./routes/adminAuth.routes');
+const orderRouter = require('./routes/order.routes');
+const adminOrderRouter = require('./routes/adminOrder.routes');
 app.use('/api/health', healthRouter);
 app.use('/api/products', productRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/admin/orders', adminOrderRouter);
 
 // 404 handler
 app.use((req, res, next) => {

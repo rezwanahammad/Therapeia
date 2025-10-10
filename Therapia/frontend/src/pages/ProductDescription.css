@@ -9,11 +9,7 @@
 .pd-name { margin: 0 0 0.5rem 0; }
 .pd-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
 .pd-category { background: #e8f5e8; color: #00b894; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
-.pd-rating { display: flex; align-items: center; gap: 6px; }
-.star { font-size: 1rem; color: #ddd; }
-.star.filled { color: #ffc107; }
-.star.half { background: linear-gradient(90deg, #ffc107 50%, #ddd 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.pd-reviews { font-size: 0.9rem; color: #666; }
+/* Rating and review styles removed */
 .pd-pricing { display: flex; align-items: baseline; gap: 0.75rem; margin: 0.5rem 0 1rem; }
 .pd-price { font-size: 1.6rem; font-weight: 800; color: #00b894; }
 .pd-original { font-size: 1rem; color: #999; text-decoration: line-through; }
