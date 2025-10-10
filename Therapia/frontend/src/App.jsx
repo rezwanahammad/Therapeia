@@ -7,6 +7,8 @@ import ProductGrid from './components/ProductGrid'
 import './App.css'
 import { setCurrentUser as persistUser, clearCurrentUser, getCurrentUser } from './utils/auth'
 import heroDoctor from './assets/hero-doctor.png'
+import ChatModal from './components/ChatModal'
+import './components/ChatModal.css'
 // Dashboard moved to its own route as requested
 
 function App() {
@@ -18,6 +20,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [, setError] = useState('')
   const navigate = useNavigate()
+  const [isChatOpen, setIsChatOpen] = useState(false)
   
   // Prefer proxy-relative paths in dev; allow explicit base via env
   const API_BASE = import.meta.env.VITE_API_URL || ''
@@ -149,6 +152,11 @@ function App() {
           </div>
         </div>
       </main>
+      {/* Floating chat trigger on Home */}
+      <button type="button" className="floating-chat-trigger" onClick={() => setIsChatOpen(true)}>
+        💬 Chat
+      </button>
+      <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} mode="home" />
       <Footer />
     </div>
   )
