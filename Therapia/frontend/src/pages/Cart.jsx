@@ -5,6 +5,7 @@ import Footer from '../components/Footer'
 import AuthModal from '../components/AuthModal'
 import { getCurrentUser, setCurrentUser } from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
+import './ProductDescription.css'
 
 const Cart = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -13,6 +14,9 @@ const Cart = () => {
   const [status, setStatus] = useState(null)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login')
+  const [isBuying, setIsBuying] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('Bank')
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const navigate = useNavigate()
   const { notify } = useNotifications()
   const total = useMemo(() => Array.isArray(cart)
@@ -78,7 +82,7 @@ const Cart = () => {
     }
   }
 
-  const placeOrder = async () => {
+  const openCheckout = () => {
     if (!user?._id) {
       setAuthMode('login')
       setIsAuthOpen(true)
@@ -88,21 +92,50 @@ const Cart = () => {
       notify({ title: 'Cart Empty', message: 'Add items before checkout', type: 'info' })
       return
     }
+    setIsBuying(true)
+  }
+
+  const resolveLocationText = () => {
+    const addresses = Array.isArray(user?.addresses) ? user.addresses : []
+    let def = addresses.find(a => a?.isDefault) || addresses[0]
+    if (!def && user?.address) {
+      def = user.address
+    }
+    if (!def) return null
+    const parts = [
+      def.line1 || def.addressLine1 || def.street,
+      def.city,
+      def.state,
+    ].filter(Boolean)
+    const joined = parts.join(', ')
+    return joined || def.city || def.country || null
+  }
+
+  const confirmPayment = async () => {
+    if (!user?._id) {
+      setAuthMode('login')
+      setIsAuthOpen(true)
+      return
+    }
     try {
+      setIsPlacingOrder(true)
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({})
+        body: JSON.stringify({ paymentMethod })
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.message || 'Failed to create order')
       const orderId = data?.order?._id
       notify({ title: 'Order Placed', message: `Order #${String(orderId || '').slice(-6)}`, type: 'success' })
+      setIsBuying(false)
       if (orderId) navigate(`/orders/${orderId}`)
     } catch (err) {
       console.error('Create order error:', err)
       notify({ title: 'Checkout Failed', message: err.message, type: 'error' })
+    } finally {
+      setIsPlacingOrder(false)
     }
   }
 
@@ -184,7 +217,7 @@ const Cart = () => {
                   ))}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
                     <div style={{ fontWeight: 600 }}>Total: ৳{Number(total).toFixed(2)}</div>
-                    <button onClick={placeOrder} style={{ background: '#10847e', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 14px' }}>Confirm Order</button>
+                    <button onClick={openCheckout} style={{ background: '#10847e', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 14px' }}>Confirm Order</button>
                   </div>
                 </div>
               )}
@@ -192,6 +225,55 @@ const Cart = () => {
           )}
         </div>
       </main>
+      {isBuying && (
+        <div className="buy-modal" role="dialog" aria-modal="true">
+          <div className="buy-content">
+            <h3>Checkout</h3>
+            <hr />
+            <div className="buy-summary">
+              <div>
+                <div style={{ fontWeight: 600 }}>Items</div>
+                <div className="summary-box">{Array.isArray(cart) ? cart.length : 0} item(s)</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600 }}>Total Price</div>
+                <div className="summary-box">৳{Number(total).toFixed(2)}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600 }}>Delivery Address</div>
+                <div className="summary-box" style={{ color: '#555' }}>{resolveLocationText() || (user ? `${user.firstName}'s address` : 'Not logged in')}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600 }}>Arrival</div>
+                <div className="summary-box">Probable arrival: 3–7 days</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 6, color: '#37474f' }}>Payment Method</div>
+                <div className="payment-options" role="radiogroup" aria-label="Select payment method">
+                  {['Bank', 'Bkash', 'Nagad'].map(pm => (
+                    <label key={pm} className={`payment-option ${paymentMethod === pm ? 'active' : ''}`}>
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value={pm}
+                        checked={paymentMethod === pm}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="pm-label">{pm}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="buy-actions" style={{ marginTop: 12 }}>
+              <button type="button" className="btn-secondary" onClick={() => setIsBuying(false)} disabled={isPlacingOrder}>Cancel</button>
+              <button type="button" className="btn-primary" onClick={confirmPayment} disabled={isPlacingOrder}>
+                {isPlacingOrder ? 'Placing…' : 'Confirm Payment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <AuthModal
         isOpen={isAuthOpen}
         initialMode={authMode}
