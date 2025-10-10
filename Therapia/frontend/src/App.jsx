@@ -7,6 +7,7 @@ import ProductGrid from './components/ProductGrid'
 import './App.css'
 import { setCurrentUser as persistUser, clearCurrentUser, getCurrentUser } from './utils/auth'
 import heroDoctor from './assets/hero-doctor.png'
+import chatIcon from './assets/chat_icon.png'
 import ChatModal from './components/ChatModal'
 import './components/ChatModal.css'
 // Dashboard moved to its own route as requested
@@ -154,7 +155,10 @@ function App() {
       </main>
       {/* Floating chat trigger on Home */}
       <button type="button" className="floating-chat-trigger" onClick={() => setIsChatOpen(true)}>
-        💬 Chat
+        <span className="chat-trigger-icon">
+          <img src={chatIcon} alt="Chat" />
+        </span>
+       TherapAI
       </button>
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} mode="home" />
       <Footer />

@@ -13,6 +13,7 @@
   width: 420px;
   max-width: 92vw;
   max-height: 78vh;
+  height: min(72vh, 560px);
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -63,11 +64,14 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  overflow: hidden; /* keep input visible while messages scroll */
 }
 
 .chatmodal-messages {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   padding: 10px;
@@ -141,6 +145,8 @@
 .chatmodal-send:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .floating-chat-trigger {
+  font-size: 0.9rem;
+  font-weight: 600;
   position: fixed;
   right: 20px;
   bottom: 20px;
@@ -152,4 +158,23 @@
   box-shadow: 0 4px 14px rgba(0,0,0,0.2);
   cursor: pointer;
   z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-trigger-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #10847e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-trigger-icon img {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+  display: block;
 }
