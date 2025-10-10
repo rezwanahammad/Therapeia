@@ -7,6 +7,7 @@ import AuthModal from '../components/AuthModal';
 import { getCurrentUser, setCurrentUser } from '../utils/auth';
 import { useNotifications } from '../components/NotificationProvider';
 import ChatModal from '../components/ChatModal';
+import chatIcon from '../assets/chat_icon.png';
 import '../components/ChatModal.css';
 
 const ProductDescription = () => {
@@ -264,7 +265,10 @@ const ProductDescription = () => {
 
           {/* Floating chat trigger */}
           <button type="button" className="floating-chat-trigger" onClick={() => setIsChatOpen(true)}>
-            💬 Chat
+            <span className="chat-trigger-icon">
+              <img src={chatIcon} alt="Chat" />
+            </span>
+             TherapAI
           </button>
         </div>
         {isBuying && (

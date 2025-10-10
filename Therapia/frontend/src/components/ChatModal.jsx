@@ -81,7 +81,7 @@ const ChatModal = ({ isOpen, onClose, mode = 'home', productGeneric = '' }) => {
         <div className="chatmodal-body">
           <div className="chatmodal-messages" ref={messagesBoxRef}>
             {messages.length === 0 ? (
-              <div className="chatmodal-empty">Compose your message...</div>
+              <div className="chatmodal-empty">Ask about your medicine...</div>
             ) : (
               messages.map((m, idx) => (
                 <div key={idx} className={`chatbubble ${m.role}`}>{m.text}</div>
