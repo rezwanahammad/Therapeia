@@ -39,13 +39,25 @@
 .safety-badge.gray { background: #95a5a6; }
 .safety-title { font-weight: 600; margin-bottom: 4px; }
 .safety-note { color: #555; line-height: 1.5; }
-.buy-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 1000; }
-.buy-content { background: white; width: 100%; max-width: 520px; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 6px 24px rgba(0,0,0,0.2); }
-.buy-form { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
-.buy-input { padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px; }
-.buy-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
-.btn-secondary { background: #f1f3f4; border: 1px solid #d1d7dc; color: #333; padding: 10px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-.btn-primary { background: #00b894; color: white; border: none; padding: 10px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; }
+.buy-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; padding: 1.25rem; z-index: 1000; }
+.buy-content { background: #ffffff; width: 100%; max-width: 600px; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 14px 36px rgba(16,132,126,0.18); border: 1px solid #e6f2f1; }
+.buy-content h3 { margin: 0 0 0.75rem 0; font-weight: 800; color: #10847e; }
+.buy-content hr { border: none; height: 1px; background: linear-gradient(90deg, #e6f2f1, #cde7e4, #e6f2f1); margin: 10px 0 14px; }
+.buy-summary { display: grid; gap: 10px; }
+.buy-summary .label { font-weight: 700; color: #37474f; }
+.buy-summary .value { color: #37474f; }
+.summary-box { background: #f5f7f9; border: 1px solid #e3e8ee; border-radius: 12px; padding: 10px 12px; color: #37474f; }
+.payment-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.payment-option { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #d1e7e5; border-radius: 10px; background: #f5fbfa; cursor: pointer; transition: all 0.15s ease-in-out; }
+.payment-option:hover { border-color: #b8dbd8; background: #f0f9f8; }
+.payment-option input { accent-color: #10847e; }
+.payment-option .pm-label { font-weight: 600; color: #0c7b67; }
+.payment-option.active { border-color: #10847e; background: #e8f6f4; box-shadow: 0 2px 8px rgba(16,132,126,0.12); }
+.buy-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
+.btn-secondary { background: #f1f3f4; border: 1px solid #d1d7dc; color: #333; padding: 10px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.btn-primary { background: #10847e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(16,132,126,0.18); transition: transform 120ms ease, box-shadow 120ms ease; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,132,126,0.24); }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
 @media (max-width: 768px) {
   .pd-content { grid-template-columns: 1fr; }

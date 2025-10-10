@@ -14,6 +14,8 @@ const ProductDescription = () => {
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isBuying, setIsBuying] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('Bank');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [currentUser, setUserState] = useState(getCurrentUser());
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
@@ -122,8 +124,66 @@ const ProductDescription = () => {
     }
   };
 
+  const resolveLocationText = () => {
+    const addresses = Array.isArray(currentUser?.addresses) ? currentUser.addresses : [];
+    let def = addresses.find(a => a?.isDefault) || addresses[0];
+    if (!def && currentUser?.address) {
+      def = currentUser.address;
+    }
+    if (!def) return null;
+    const parts = [
+      def.line1 || def.addressLine1 || def.street,
+      def.city,
+      def.state,
+    ].filter(Boolean);
+    const joined = parts.join(', ');
+    return joined || def.city || def.country || null;
+  };
+
   const handleBuyNow = () => {
+    if (!currentUser?._id) {
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      return;
+    }
     setIsBuying(true);
+  };
+
+  const confirmPayment = async () => {
+    if (!currentUser?._id) {
+      setAuthMode('login');
+      setIsAuthOpen(true);
+      return;
+    }
+    try {
+      setIsPlacingOrder(true);
+      // Ensure the selected product is in the cart with chosen quantity
+      const addRes = await fetch(`/api/users/${currentUser._id}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product._id || product.id, quantity })
+      });
+      const addData = await addRes.json().catch(() => ({}));
+      if (!addRes.ok) throw new Error(addData?.message || 'Failed to add item for checkout');
+
+      // Create order with selected payment method
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ paymentMethod })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || 'Failed to create order');
+      const orderId = data?.order?._id;
+      notify({ title: 'Order Placed', message: `Order #${String(orderId || '').slice(-6)}`, type: 'success' });
+      setIsBuying(false);
+      if (orderId) window.location.href = `/orders/${orderId}`;
+    } catch (err) {
+      notify({ title: 'Payment Failed', message: err.message, type: 'error' });
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   const closeBuy = () => setIsBuying(false);
@@ -251,17 +311,48 @@ const ProductDescription = () => {
           <div className="buy-modal" role="dialog" aria-modal="true">
             <div className="buy-content">
               <h3>Checkout</h3>
-              <p><strong>{product.name}</strong> × {quantity}</p>
-              <p>Total: <strong>৳{totalPrice}</strong></p>
-              <form className="buy-form" onSubmit={(e) => { e.preventDefault(); alert('Order placed!'); closeBuy(); }}>
-                <input type="text" placeholder="Full Name" required className="buy-input" />
-                <input type="tel" placeholder="Phone Number" required className="buy-input" />
-                <textarea placeholder="Delivery Address" required rows={3} className="buy-input"></textarea>
-                <div className="buy-actions">
-                  <button type="button" className="btn-secondary" onClick={closeBuy}>Cancel</button>
-                  <button type="submit" className="btn-primary">Place Order</button>
+              <hr />
+              <div className="buy-summary">
+                <div>
+                  <div style={{ fontWeight: 600 }}>Product</div>
+                  <div className="summary-box"><strong>{product.name}</strong> × {quantity}</div>
                 </div>
-              </form>
+                <div>
+                  <div style={{ fontWeight: 600 }}>Total Price</div>
+                  <div className="summary-box">৳{totalPrice}</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600 }}>Delivery Address</div>
+                  <div className="summary-box" style={{ color: '#555' }}>{resolveLocationText() || (currentUser ? `${currentUser.firstName}'s address` : 'Not logged in')}</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600 }}>Arrival</div>
+                  <div className="summary-box">Probable arrival: 3–7 days</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: 6, color: '#37474f' }}>Payment Method</div>
+                  <div className="payment-options" role="radiogroup" aria-label="Select payment method">
+                    {['Bank', 'Bkash', 'Nagad'].map(pm => (
+                      <label key={pm} className={`payment-option ${paymentMethod === pm ? 'active' : ''}`}>
+                        <input
+                          type="radio"
+                          name="payment-method"
+                          value={pm}
+                          checked={paymentMethod === pm}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                        />
+                        <span className="pm-label">{pm}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="buy-actions" style={{ marginTop: 12 }}>
+                <button type="button" className="btn-secondary" onClick={closeBuy} disabled={isPlacingOrder}>Cancel</button>
+                <button type="button" className="btn-primary" onClick={confirmPayment} disabled={isPlacingOrder}>
+                  {isPlacingOrder ? 'Placing…' : 'Confirm Payment'}
+                </button>
+              </div>
             </div>
           </div>
         )}

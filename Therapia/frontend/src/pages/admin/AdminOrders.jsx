@@ -113,6 +113,7 @@ export default function AdminOrders() {
             <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Order</th>
             <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>User</th>
             <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Status</th>
+            <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Payment</th>
             <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Total</th>
             <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Actions</th>
           </tr>
@@ -123,6 +124,7 @@ export default function AdminOrders() {
               <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
               <td style={{ padding: 8 }}>{String(o.user).slice(-6)}</td>
               <td style={{ padding: 8 }}>{o.status}</td>
+              <td style={{ padding: 8 }}>{o.paymentStatus}{o.paymentMethod ? ` (${o.paymentMethod})` : ''}</td>
               <td style={{ padding: 8 }}>৳{Number(o.totalAmount).toFixed(2)}</td>
               <td style={{ padding: 8 }}>
                 <button onClick={() => setStatus(o._id, 'processing')}>Process</button>{' '}
