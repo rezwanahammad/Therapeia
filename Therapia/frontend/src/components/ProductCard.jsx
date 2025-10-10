@@ -36,26 +36,7 @@ const ProductCard = ({ product, currentUser }) => {
     }
   };
 
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={i} className="star filled">★</span>);
-    }
-    
-    if (hasHalfStar) {
-      stars.push(<span key="half" className="star half">★</span>);
-    }
-    
-    const remainingStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < remainingStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="star empty">★</span>);
-    }
-    
-    return stars;
-  };
+  // Ratings and reviews are not shown in this project.
 
   return (
     <div className="product-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
@@ -71,13 +52,7 @@ const ProductCard = ({ product, currentUser }) => {
       
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
-        
-        <div className="product-rating">
-          <div className="stars">
-            {renderStars(product.rating)}
-          </div>
-          <span className="rating-text">({product.reviews})</span>
-        </div>
+        {/* Rating stars and review count removed */}
         
         <div className="product-pricing">
           <span className="current-price">৳{product.price}</span>

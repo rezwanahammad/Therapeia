@@ -31,7 +31,8 @@ const ProductDescription = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const API_BASE = import.meta.env.VITE_API_URL || '';
+  // Avoid using import.meta.env due to module target diagnostics; rely on proxy.
+  const API_BASE = '';
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -60,7 +61,17 @@ const ProductDescription = () => {
   if (loading) {
     return (
       <>
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={currentUser} onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }} onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }} />
+        <Header 
+          searchQuery={searchQuery} 
+          onSearchChange={setSearchQuery} 
+          currentUser={currentUser} 
+          onLoggedIn={(u) => { /** @type {any} */(setCurrentUser)(u); setUserState(u); }} 
+          onLogout={async () => { 
+            try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* ignore */ } 
+            /** @type {any} */(setCurrentUser)(null); 
+            setUserState(null); 
+          }} 
+        />
         <main className="pd-page">
           <div className="pd-container">
             <div>Loading product...</div>
@@ -73,7 +84,17 @@ const ProductDescription = () => {
   if (error || !product) {
     return (
       <>
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} currentUser={currentUser} onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }} onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }} />
+        <Header 
+          searchQuery={searchQuery} 
+          onSearchChange={setSearchQuery} 
+          currentUser={currentUser} 
+          onLoggedIn={(u) => { /** @type {any} */(setCurrentUser)(u); setUserState(u); }} 
+          onLogout={async () => { 
+            try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } 
+            /** @type {any} */(setCurrentUser)(null); 
+            setUserState(null); 
+          }} 
+        />
         <main className="pd-page">
           <div className="pd-container">
             <h2>{error || 'Product not found'}</h2>
@@ -83,10 +104,7 @@ const ProductDescription = () => {
     );
   }
 
-  const rating = Number(product.rating || 0);
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 !== 0;
-  const emptyStars = 5 - Math.ceil(rating);
+  // Rating and reviews are not displayed in this project.
 
   const totalPrice = ((product.price || 0) * quantity).toFixed(2);
 
@@ -130,13 +148,13 @@ const ProductDescription = () => {
 
   return (
     <>
-      <Header 
-        searchQuery={searchQuery} 
-        onSearchChange={setSearchQuery} 
-        currentUser={currentUser}
-        onLoggedIn={(u) => { setCurrentUser(u); setUserState(u); }}
-        onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } setCurrentUser(null); setUserState(null); }}
-      />
+        <Header 
+          searchQuery={searchQuery} 
+          onSearchChange={setSearchQuery} 
+          currentUser={currentUser}
+        onLoggedIn={(u) => { /** @type {any} */(setCurrentUser)(u); setUserState(u); }}
+        onLogout={async () => { try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ } /** @type {any} */(setCurrentUser)(null); setUserState(null); }}
+        />
       <main className="pd-page">
         <div className="pd-container">
           <div className="pd-content">
@@ -147,16 +165,7 @@ const ProductDescription = () => {
             <h2 className="pd-name">{product.name}</h2>
             <div className="pd-meta">
               <span className="pd-category">{product.category}</span>
-              <div className="pd-rating">
-                {[...Array(fullStars)].map((_, i) => (
-                  <span key={`f-${i}`} className="star filled">★</span>
-                ))}
-                {hasHalfStar && <span className="star half">★</span>}
-                {[...Array(emptyStars)].map((_, i) => (
-                  <span key={`e-${i}`} className="star empty">★</span>
-                ))}
-                {product.reviews ? <span className="pd-reviews">({product.reviews})</span> : null}
-              </div>
+              {/* Rating stars and review count removed */}
             </div>
 
             <div className="pd-pricing">
@@ -284,12 +293,12 @@ const ProductDescription = () => {
               });
               const data = await res.json();
               if (!res.ok) throw new Error(data?.message || 'Failed to add to cart');
-              const meRes = await fetch('/api/auth/me');
-              const meData = await meRes.json();
-              if (meRes.ok && meData.user) {
-                setCurrentUser(meData.user);
-                setUserState(meData.user);
-              }
+      const meRes = await fetch('/api/auth/me');
+      const meData = await meRes.json();
+      if (meRes.ok && meData.user) {
+        /** @type {any} */(setCurrentUser)(meData.user);
+        setUserState(meData.user);
+      }
               alert(`Added ${pendingAddQty} x ${product.name} to cart`);
             }
           } catch (err) {
