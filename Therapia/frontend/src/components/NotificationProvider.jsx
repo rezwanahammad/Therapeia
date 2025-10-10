@@ -1,7 +1,11 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import './Notification.css'
 
-const NotificationsContext = createContext({ notify: () => {} })
+/**
+ * Provide a context with a `notify` function that accepts a payload.
+ * This avoids type inference that suggests zero-argument calls.
+ */
+const NotificationsContext = createContext({ notify: (_opts) => {} })
 
 export const useNotifications = () => useContext(NotificationsContext)
 
