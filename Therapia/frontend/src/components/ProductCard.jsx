@@ -62,7 +62,7 @@ const ProductCard = ({ product, currentUser }) => {
         </div>
         
         <div className="product-category">
-          <span className="category-tag">{product.category}</span>
+          <span className="category-tag">{product.generic || product.category}</span>
         </div>
         
         <button 

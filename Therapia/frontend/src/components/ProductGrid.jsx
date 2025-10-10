@@ -2,20 +2,30 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import './ProductGrid.css';
 
-const ProductGrid = ({ products, selectedCategory, searchQuery = '', currentUser }) => {
-  const normalizedQuery = searchQuery.trim().toLowerCase();
+const ProductGrid = ({ products, selectedCategory, searchQuery = '', genericQuery = '', currentUser }) => {
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const normalizedGeneric = genericQuery.trim().toLowerCase();
 
   const byCategory = selectedCategory === 'all'
     ? products
     : products.filter(product => product.category === selectedCategory);
     
-  const filteredProducts = normalizedQuery
+  const filteredBySearch = normalizedSearch
     ? byCategory.filter(product => {
         const name = product.name?.toLowerCase() || '';
         const category = product.category?.toLowerCase() || '';
-        return name.includes(normalizedQuery) || category.includes(normalizedQuery);
+        const generic = product.generic?.toLowerCase() || '';
+        return (
+          name.includes(normalizedSearch) ||
+          category.includes(normalizedSearch) ||
+          generic.includes(normalizedSearch)
+        );
       })
     : byCategory;
+
+  const filteredProducts = normalizedGeneric
+    ? filteredBySearch.filter(product => (product.generic?.toLowerCase() || '').includes(normalizedGeneric))
+    : filteredBySearch;
 
   return (
     <div className="product-grid-container">

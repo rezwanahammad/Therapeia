@@ -12,6 +12,7 @@ import heroDoctor from './assets/hero-doctor.png'
 function App() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [genericQuery, setGenericQuery] = useState('')
   const [currentUser, setCurrentUser] = useState(getCurrentUser())
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
@@ -55,6 +56,7 @@ function App() {
         const normalized = raw.map(p => ({
           id: p._id || p.id,
           name: p.name,
+          generic: p.generic, // include generic for sidebar search/filtering
           price: p.price,
           category: p.category,
           image: p.imageUrl,
@@ -126,6 +128,8 @@ function App() {
               <CategorySidebar 
                 onCategorySelect={handleCategorySelect}
                 selectedCategory={selectedCategory}
+                onGenericSearch={setGenericQuery}
+                products={products}
               />
             </aside>
             
@@ -137,6 +141,7 @@ function App() {
                   products={products}
                   selectedCategory={selectedCategory}
                   searchQuery={searchQuery}
+                  genericQuery={genericQuery}
                   currentUser={currentUser}
                 />
               )}
