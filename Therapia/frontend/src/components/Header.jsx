@@ -101,6 +101,10 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
                   Hello {currentUser.firstName}
                 </button>
                 <button className="action-btn" onClick={handleLogout}>Logout</button>
+                {/* Orders button visible only when authenticated */}
+                <button className="action-btn orders-btn" onClick={() => navigate('/orders')}>
+                  📦 Orders
+                </button>
               </>
             ) : (
               <>
