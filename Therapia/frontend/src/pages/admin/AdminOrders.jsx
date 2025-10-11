@@ -7,6 +7,7 @@ export default function AdminOrders() {
   const [error, setError] = useState('')
   const [auditOrderId, setAuditOrderId] = useState(null)
   const [audit, setAudit] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const { notify } = useNotifications()
 
   useEffect(() => {
@@ -67,6 +68,9 @@ export default function AdminOrders() {
   // Tracking and Cancel actions removed from list per new design
 
   async function deleteOrder(id) {
+    const confirmed = window.confirm('Delete this delivered order? This cannot be undone.')
+    if (!confirmed) return
+    setDeletingId(id)
     try {
       const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'DELETE',
@@ -78,6 +82,8 @@ export default function AdminOrders() {
       notify({ title: 'Order Deleted', message: `Removed #${String(id).slice(-6)}`, type: 'success' })
     } catch (err) {
       notify({ title: 'Delete Failed', message: err.message, type: 'error' })
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -101,10 +107,10 @@ export default function AdminOrders() {
       {loading && <p>Loading…</p>}
       {error && <p style={{ color: '#c62828' }}>{error}</p>}
 
-      <Section title="Pending" items={grouped.pending} onNext={setStatus} nextStatusMap={nextStatusMap} />
-      <Section title="Processing" items={grouped.processing} onNext={setStatus} nextStatusMap={nextStatusMap} />
-      <Section title="Shipping" items={grouped.shipped} onNext={setStatus} nextStatusMap={nextStatusMap} />
-      <Section title="Delivered" items={grouped.delivered} onNext={setStatus} nextStatusMap={nextStatusMap} />
+      <Section title="Pending" items={grouped.pending} onNext={setStatus} nextStatusMap={nextStatusMap} onDelete={deleteOrder} deletingId={deletingId} />
+      <Section title="Processing" items={grouped.processing} onNext={setStatus} nextStatusMap={nextStatusMap} onDelete={deleteOrder} deletingId={deletingId} />
+      <Section title="Shipping" items={grouped.shipped} onNext={setStatus} nextStatusMap={nextStatusMap} onDelete={deleteOrder} deletingId={deletingId} />
+      <Section title="Delivered" items={grouped.delivered} onNext={setStatus} nextStatusMap={nextStatusMap} onDelete={deleteOrder} deletingId={deletingId} />
 
       {auditOrderId && (
         <div style={{ marginTop: 16 }}>
@@ -128,7 +134,7 @@ export default function AdminOrders() {
   )
 }
 
-function Section({ title, items, onNext, nextStatusMap }) {
+function Section({ title, items, onNext, nextStatusMap, onDelete, deletingId }) {
   return (
     <div className="admin-card" style={{ marginBottom: 16 }}>
       <div className="admin-header">
@@ -155,6 +161,7 @@ function Section({ title, items, onNext, nextStatusMap }) {
               const label = o.status === 'pending' ? 'Process' : o.status === 'processing' ? 'Ship' : o.status === 'shipped' ? 'Deliver' : '—'
               const canNext = Boolean(next)
               const canDelete = o.status === 'delivered'
+              const deleting = deletingId === o._id
               return (
                 <tr key={o._id}>
                   <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
@@ -171,12 +178,22 @@ function Section({ title, items, onNext, nextStatusMap }) {
                       style={{ opacity: canNext ? 1 : 0.5 }}
                     >{label}</button>
                     {' '}
-                    <button
+                    {
+                      canDelete && (
+                        <button
+                          className="admin-btn danger"
+                          disabled={!canDelete || deleting}
+                          onClick={() => canDelete && onDelete(o._id)}
+                          style={{ opacity: (!canDelete || deleting) ? 0.5 : 1 }}
+                        >{deleting ? 'Deleting…' : 'Delete'}</button>
+                      )
+                    }
+                    {/* <button
                       className="admin-btn danger"
                       disabled={!canDelete}
                       onClick={() => canDelete && deleteOrder(o._id)}
                       style={{ opacity: canDelete ? 1 : 0.5 }}
-                    >Delete</button>
+                    >Delete</button> */}
                     {/*<button className="admin-btn secondary" onClick={() => openAudit(o._id)}>Audit</button>*/}
                   </td>
                 </tr>

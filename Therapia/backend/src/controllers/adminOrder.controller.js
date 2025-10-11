@@ -81,3 +81,19 @@ async function getAudit(req, res, next) {
 }
 
 module.exports = { listOrders, updateOrderStatus, updateTracking, cancelOrder, getAudit };
+
+// DELETE /api/admin/orders/:id
+async function deleteOrder(req, res, next) {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (order.status !== 'delivered') {
+      return res.status(400).json({ message: 'Only delivered orders can be deleted' });
+    }
+    await Order.deleteOne({ _id: id });
+    return res.json({ success: true });
+  } catch (err) { next(err); }
+}
+
+module.exports.deleteOrder = deleteOrder;

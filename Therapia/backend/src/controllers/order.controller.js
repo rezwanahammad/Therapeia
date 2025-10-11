@@ -4,13 +4,15 @@ const User = require('../models/user');
 const { bus } = require('../services/events');
 
 // POST /api/orders
-// body: { items?: [{ productId, quantity }], note? }
+// body: { items?: [{ productId, quantity }], note?, paymentMethod? }
 async function createOrder(req, res, next) {
   try {
     const userId = req.userId;
     const body = req.body || {};
+    const paymentMethod = ['Bank', 'Bkash', 'Nagad'].includes(body.paymentMethod) ? body.paymentMethod : 'Unknown';
 
     let items = [];
+    let usedCart = false;
     if (Array.isArray(body.items) && body.items.length > 0) {
       // Build items from provided payload
       const pids = body.items.map(i => new mongoose.Types.ObjectId(String(i.productId)));
@@ -30,12 +32,26 @@ async function createOrder(req, res, next) {
         return res.status(400).json({ message: 'Cart is empty' });
       }
       items = user.cart.map(ci => ({ product: ci.product._id, name: ci.product.name, price: ci.product.price, quantity: ci.quantity }));
+      usedCart = true;
     }
 
     const totalAmount = items.reduce((sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 0), 0);
-    const order = await Order.create({ user: userId, items, totalAmount, status: 'pending', statusHistory: [] });
+    const order = await Order.create({
+      user: userId,
+      items,
+      totalAmount,
+      status: 'pending',
+      statusHistory: [],
+      paymentStatus: 'completed',
+      paymentMethod,
+    });
     order.addStatus('pending', body.note || 'Order placed', 'user', userId);
     await order.save();
+
+    // Clear the user's cart after successful order creation when using cart
+    if (usedCart) {
+      await User.findByIdAndUpdate(userId, { $set: { cart: [] } }, { new: false });
+    }
 
     // Notify via SSE
     bus.emit(`order:${order._id}:status`, { id: String(order._id), status: order.status, history: order.statusHistory });
