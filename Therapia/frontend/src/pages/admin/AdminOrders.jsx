@@ -66,6 +66,21 @@ export default function AdminOrders() {
 
   // Tracking and Cancel actions removed from list per new design
 
+  async function deleteOrder(id) {
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.message || 'Failed to delete order')
+      setOrders(os => os.filter(o => o._id !== id))
+      notify({ title: 'Order Deleted', message: `Removed #${String(id).slice(-6)}`, type: 'success' })
+    } catch (err) {
+      notify({ title: 'Delete Failed', message: err.message, type: 'error' })
+    }
+  }
+
   async function openAudit(id) {
     setAuditOrderId(id)
     setAudit([])
@@ -139,6 +154,7 @@ function Section({ title, items, onNext, nextStatusMap }) {
               const next = nextStatusMap[o.status]
               const label = o.status === 'pending' ? 'Process' : o.status === 'processing' ? 'Ship' : o.status === 'shipped' ? 'Deliver' : '—'
               const canNext = Boolean(next)
+              const canDelete = o.status === 'delivered'
               return (
                 <tr key={o._id}>
                   <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
@@ -155,6 +171,12 @@ function Section({ title, items, onNext, nextStatusMap }) {
                       style={{ opacity: canNext ? 1 : 0.5 }}
                     >{label}</button>
                     {' '}
+                    <button
+                      className="admin-btn danger"
+                      disabled={!canDelete}
+                      onClick={() => canDelete && deleteOrder(o._id)}
+                      style={{ opacity: canDelete ? 1 : 0.5 }}
+                    >Delete</button>
                     {/*<button className="admin-btn secondary" onClick={() => openAudit(o._id)}>Audit</button>*/}
                   </td>
                 </tr>

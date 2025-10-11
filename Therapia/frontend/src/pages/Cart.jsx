@@ -129,6 +129,8 @@ const Cart = () => {
       if (!res.ok) throw new Error(data?.message || 'Failed to create order')
       const orderId = data?.order?._id
       notify({ title: 'Order Placed', message: `Order #${String(orderId || '').slice(-6)}`, type: 'success' })
+      // Clear cart state after server-side cart clear
+      setCart([])
       setIsBuying(false)
       if (orderId) navigate(`/orders/${orderId}`)
     } catch (err) {
