@@ -126,6 +126,7 @@ function Section({ title, items, onNext, nextStatusMap }) {
           <thead>
             <tr>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Order</th>
+              <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Date</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>User</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Status</th>
               <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: 8 }}>Payment</th>
@@ -141,6 +142,7 @@ function Section({ title, items, onNext, nextStatusMap }) {
               return (
                 <tr key={o._id}>
                   <td style={{ padding: 8 }}>#{String(o._id).slice(-6)}</td>
+                  <td style={{ padding: 8, fontWeight: 600 }}>{new Date(o.createdAt).toLocaleString()}</td>
                   <td style={{ padding: 8 }}>{String(o.user).slice(-6)}</td>
                   <td style={{ padding: 8 }}>{o.status}</td>
                   <td style={{ padding: 8 }}>{o.paymentStatus}{o.paymentMethod ? ` (${o.paymentMethod})` : ''}</td>
@@ -152,7 +154,8 @@ function Section({ title, items, onNext, nextStatusMap }) {
                       onClick={() => canNext && onNext(o._id, next)}
                       style={{ opacity: canNext ? 1 : 0.5 }}
                     >{label}</button>
-                    {' '}<button className="admin-btn secondary" onClick={() => openAudit(o._id)}>Audit</button>
+                    {' '}
+                    {/*<button className="admin-btn secondary" onClick={() => openAudit(o._id)}>Audit</button>*/}
                   </td>
                 </tr>
               )

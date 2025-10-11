@@ -103,7 +103,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
                 <button className="action-btn" onClick={handleLogout}>Logout</button>
                 {/* Orders button visible only when authenticated */}
                 <button className="action-btn orders-btn" onClick={() => navigate('/orders')}>
-                  📦 Orders
+                  Orders
                 </button>
               </>
             ) : (
@@ -118,7 +118,7 @@ const Header = ({ searchQuery, onSearchChange, onLoggedIn, currentUser, onLogout
               </>
             )}
             <button className="action-btn cart-btn" onClick={() => navigate('/cart')}>
-              🛒 Cart
+              Cart
               <span className="cart-count">{(currentUser?.cart?.length ?? 0)}</span>
             </button>
           </div>

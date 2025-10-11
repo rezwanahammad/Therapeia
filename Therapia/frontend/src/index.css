@@ -20,6 +20,18 @@ body {
   flex-direction: column;
 }
 
+/* Generic page wrapper to ensure footer sticks to bottom */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page main {
+  flex: 1;
+  padding-bottom: 56px; /* space for fixed footer height */
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;

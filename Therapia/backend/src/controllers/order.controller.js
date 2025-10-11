@@ -49,7 +49,10 @@ async function createOrder(req, res, next) {
 // GET /api/orders
 async function listMyOrders(req, res, next) {
   try {
-    const orders = await Order.find({ user: req.userId }).sort({ createdAt: -1 }).lean();
+    const orders = await Order.find({ user: req.userId })
+      .sort({ createdAt: -1 })
+      .populate('items.product', 'imageUrl name price')
+      .lean();
     res.json({ orders });
   } catch (err) {
     next(err);
@@ -60,7 +63,9 @@ async function listMyOrders(req, res, next) {
 async function getMyOrder(req, res, next) {
   try {
     const { id } = req.params;
-    const order = await Order.findById(id).lean();
+    const order = await Order.findById(id)
+      .populate('items.product', 'imageUrl name price')
+      .lean();
     if (!order || String(order.user) !== String(req.userId)) {
       return res.status(404).json({ message: 'Order not found' });
     }

@@ -12,6 +12,7 @@ export default function OrderDetail() {
   const [history, setHistory] = useState([])
   const [error, setError] = useState('')
   const [currentUser, setCU] = useState(getCurrentUser())
+  const [searchQuery, setSearchQuery] = useState('')
   const esRef = useRef(null)
   const { notify } = useNotifications()
 
@@ -72,8 +73,20 @@ export default function OrderDetail() {
   }, [id])
 
   return (
-    <div>
-      <Header currentUser={currentUser} onLoggedIn={(u) => { setCU(u); setCurrentUser(u); }} />
+    <div className="page">
+      <Header
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onLoggedIn={(u) => { setCU(u); setCurrentUser(u); }}
+        currentUser={currentUser}
+        onLogout={async () => {
+          try {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+          } catch {}
+          setCU(null)
+          setCurrentUser(null)
+        }}
+      />
       <main className="container" style={{ padding: 16 }}>
         <h2>Order #{String(id).slice(-6)}</h2>
         {error && <p style={{ color: '#c62828' }}>{error}</p>}
@@ -89,9 +102,26 @@ export default function OrderDetail() {
               <ul style={{ listStyle: 'none', padding: 0 }}>
                 {order.items.map((it, idx) => (
                   <li key={idx} style={{ borderBottom: '1px solid #eee', padding: '8px 0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>{it.name} × {it.quantity}</span>
-                      <span>৳{Number(it.price * it.quantity).toFixed(2)}</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr auto', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 64, height: 64, borderRadius: 8, overflow: 'hidden', background: '#f3f4f6' }}>
+                        { (it.product?.imageUrl || it.imageUrl) ? (
+                          <img
+                            src={it.product?.imageUrl || it.imageUrl}
+                            alt={it.name}
+                            width={64}
+                            height={64}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            loading="lazy"
+                            decoding="async"
+                            fetchPriority="low"
+                          />
+                        ) : null }
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{it.name}</div>
+                        <div style={{ color: '#6b7280' }}>Qty: {it.quantity}</div>
+                      </div>
+                      <div style={{ fontWeight: 600 }}>৳{Number(it.price * it.quantity).toFixed(2)}</div>
                     </div>
                   </li>
                 ))}

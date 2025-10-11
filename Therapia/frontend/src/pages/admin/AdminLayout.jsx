@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import './admin.css'
 
-const AdminLayout = () => {
+const     AdminLayout = () => {
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -19,11 +19,10 @@ const AdminLayout = () => {
       <aside className="admin-sidebar">
         <div className="admin-brand">Therapeia Admin</div>
         <nav className="admin-nav">
-          <NavLink end to="/admin" className="admin-link">Dashboard</NavLink>
+          {/* <NavLink end to="/admin" className="admin-link">Dashboard</NavLink> */}
           <NavLink to="/admin/products" className="admin-link">Products</NavLink>
           <NavLink to="/admin/orders" className="admin-link">Orders</NavLink>
           <NavLink to="/admin/users" className="admin-link">Users</NavLink>
-          <NavLink to="/admin/settings" className="admin-link">Settings</NavLink>
         </nav>
       </aside>
       <main className="admin-content">
