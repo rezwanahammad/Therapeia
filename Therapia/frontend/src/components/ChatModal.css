@@ -20,6 +20,22 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.chatmodal-minimized {
+  width: 280px;
+  height: 48px;
+  max-height: 48px;
+}
+
+.chatmodal-minimized .chatmodal-header {
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.chatmodal-minimized .chatmodal-header:hover {
+  background: #0d7169;
 }
 
 .chatmodal-header {
@@ -39,6 +55,13 @@
   font-size: 0.95rem;
   font-weight: 600;
 }
+
+.chatmodal-message-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.8;
+  margin-left: 4px;
+}
 .chatmodal-title .brand-icon {
   width: 24px;
   height: 24px;
@@ -51,12 +74,36 @@
   font-size: 14px;
 }
 
+.chatmodal-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chatmodal-minimize,
 .chatmodal-close {
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 16px;
   color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.chatmodal-minimize:hover,
+.chatmodal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chatmodal-minimize {
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .chatmodal-body {
@@ -71,7 +118,6 @@
 .chatmodal-messages {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   padding: 10px;

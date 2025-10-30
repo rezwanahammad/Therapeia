@@ -5,13 +5,14 @@ const ChatModal = ({ isOpen, onClose, mode = 'home', productGeneric = '' }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]); // { role: 'user'|'ai', text }
   const [sending, setSending] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const messagesBoxRef = useRef(null);
+  const chatModalRef = useRef(null);
 
+  // Only clear messages when explicitly closed (not when minimized)
   useEffect(() => {
     if (!isOpen) {
-      setInput('');
-      setMessages([]);
-      setSending(false);
+      setIsMinimized(false);
     }
   }, [isOpen]);
 
@@ -23,7 +24,41 @@ const ChatModal = ({ isOpen, onClose, mode = 'home', productGeneric = '' }) => {
     }
   }, [messages]);
 
+  // Handle click outside to minimize (not close)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !isMinimized && chatModalRef.current && !chatModalRef.current.contains(event.target)) {
+        setIsMinimized(true);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, isMinimized]);
+
   if (!isOpen) return null;
+
+  const handleMinimize = () => {
+    setIsMinimized(true);
+  };
+
+  const handleMaximize = () => {
+    setIsMinimized(false);
+  };
+
+  const handleClose = () => {
+    // Clear messages only when explicitly closed
+    setInput('');
+    setMessages([]);
+    setSending(false);
+    setIsMinimized(false);
+    onClose();
+  };
 
   const buildPrompt = (question) => {
     const persona = [
@@ -73,42 +108,66 @@ const ChatModal = ({ isOpen, onClose, mode = 'home', productGeneric = '' }) => {
 
   return (
     <div className="chatmodal-overlay" role="dialog" aria-modal="true" aria-label="Therapeia Chatbot">
-      <div className="chatmodal">
-        <div className="chatmodal-header">
-          <div className="chatmodal-title">Therapeia AI</div>
-          <button className="chatmodal-close" onClick={onClose} aria-label="Close chat">✕</button>
-        </div>
-        <div className="chatmodal-body">
-          <div className="chatmodal-messages" ref={messagesBoxRef}>
-            {messages.length === 0 ? (
-              <div className="chatmodal-empty">Ask about your medicine...</div>
-            ) : (
-              messages.map((m, idx) => (
-                <div key={idx} className={`chatbubble ${m.role}`}>{m.text}</div>
-              ))
+      <div 
+        ref={chatModalRef}
+        className={`chatmodal ${isMinimized ? 'chatmodal-minimized' : ''}`}
+      >
+        <div className="chatmodal-header" onClick={isMinimized ? handleMaximize : undefined}>
+          <div className="chatmodal-title">
+            TherapAI
+            {isMinimized && messages.length > 0 && (
+              <span className="chatmodal-message-count">({messages.length})</span>
             )}
           </div>
-          <div className="chatmodal-inputrow">
-            {/* <div className="chatmodal-tools" aria-hidden="true">
-              <span className="chatmodal-tool" title="Emoji">🙂</span>
-              <span className="chatmodal-tool" title="Attach">📎</span>
-            </div> */}
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'product' ? 'Compose your message...' : 'Compose your message...'}
-              onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
-              className="chatmodal-input"
-            />
-            {/* <span className="chatmodal-mic" aria-hidden="true">🎙️</span> */}
-            <button
-              onClick={send}
-              disabled={sending || !input.trim()}
-              className="chatmodal-send"
-            >{sending ? 'Sending...' : 'Send'}</button>
+          <div className="chatmodal-controls">
+            {!isMinimized && (
+              <button 
+                className="chatmodal-minimize" 
+                onClick={handleMinimize} 
+                aria-label="Minimize chat"
+                title="Minimize"
+              >
+                −
+              </button>
+            )}
+            <button 
+              className="chatmodal-close" 
+              onClick={handleClose} 
+              aria-label="Close chat"
+              title="Close"
+            >
+              ✕
+            </button>
           </div>
         </div>
+        {!isMinimized && (
+          <div className="chatmodal-body">
+            <div className="chatmodal-messages" ref={messagesBoxRef}>
+              {messages.length === 0 ? (
+                <div className="chatmodal-empty">Ask about your medicine...</div>
+              ) : (
+                messages.map((m, idx) => (
+                  <div key={idx} className={`chatbubble ${m.role}`}>{m.text}</div>
+                ))
+              )}
+            </div>
+            <div className="chatmodal-inputrow">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={mode === 'product' ? 'Compose your message...' : 'Compose your message...'}
+                onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+                className="chatmodal-input"
+              />
+              <button
+                onClick={send}
+                disabled={sending || !input.trim()}
+                className="chatmodal-send"
+              >{sending ? 'Sending...' : 'Send'}</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
